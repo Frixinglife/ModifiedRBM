@@ -21,12 +21,14 @@
   <ItemGroup>
     <ClCompile Include="Implementation\CRSMatrixExperiments.cpp" />
     <ClCompile Include="Implementation\RoMatrixExperiments.cpp" />
+    <ClCompile Include="Implementation\TrainingExperiments.cpp" />
     <ClCompile Include="Implementation\TransitionMatrixExperiments.cpp" />
     <ClCompile Include="Implementation\TransitionMatrixCRSExperiments.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Headers\CRSMatrixExperiments.h" />
     <ClInclude Include="Headers\RoMatrixExperiments.h" />
+    <ClInclude Include="Headers\TrainingExperiments.h" />
     <ClInclude Include="Headers\TransitionMatrixExperiments.h" />
     <ClInclude Include="Headers\TransitionMatrixCRSExperiments.h" />
   </ItemGroup>

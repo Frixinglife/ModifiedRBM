@@ -13,6 +13,11 @@ freq = int(freq)
 colors = ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
              for _ in range(num_epochs // freq + 1)]
 
+data_diag_f_reference = []
+with open("..\\matrix_diag_float.txt") as f:
+    for line in f:
+        data_diag_f_reference.append(float(line))
+
 data_diag_f = []
 for i in range(1, num_epochs + 1):
     if i == 1 or i % freq == 0:
@@ -24,20 +29,21 @@ for i in range(1, num_epochs + 1):
 
 N = len(data_diag_f[0][0])
 
-plt.title("Диагональ матрицы плотности ρ при N = " + str(N) + ", число эпох - " 
-    + str(num_epochs) + ", время обучения - " + str(work_time) + " с")
+data_diag_diff = []
+for j in range(len(data_diag_f)):
+	data_diag_diff_local = []
+	for i in range(N):
+		data_diag_diff_local.append(abs(data_diag_f_reference[i] - data_diag_f[j][0][i]))
+	data_diag_diff.append((data_diag_diff_local, data_diag_f[j][1]))
 
+plt.title("Модуль разности диагоналей эталонной матрицы плотности и матрицы плотности из RBM при N = " + str(N))
 plt.xlabel("Номер элемента, i")
-plt.ylabel("ρ(i,i)")
+plt.ylabel("Модуль разности")
 
-ax = plt.gca()
-
-print(data_diag_f[0][0])
-print(data_diag_f[0][1])
-
-for i in range(len(data_diag_f)):
-    plt.plot(range(N), data_diag_f[i][0], label = 'Одинарная точность, Epoch = ' + str(data_diag_f[i][1]), color = colors[i])
+for i in range(len(data_diag_diff)):
+    plt.plot(range(N), data_diag_diff[i][0], label = 'epoch = ' + str(data_diag_diff[i][1]), color = colors[i])
 
 plt.legend()
+
 plt.grid(True, linestyle='-', color='0.75')
 plt.show()

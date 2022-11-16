@@ -5,21 +5,19 @@
 #include <string>
 #include <chrono>
 
-void TrainingProcedure(NeuralDensityOperators& DensityOperators, int epochs, acc_number lr, int freq) {
+void TrainingProcedure(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMatrix, int epochs, acc_number lr, int freq) {
     std::cout << "Starting the training process\n\n";
     std::cout << "Iterations:\n";
 
-    int N = DensityOperators.FirstModifiedRBM.N_v;
+    int N = RBM.FirstModifiedRBM.N_v;
 
     auto start = std::chrono::high_resolution_clock::now();
 
     for (int l = 1; l <= epochs; l++) {
-        MKL_Complex16* RoMatrix = DensityOperators.GetRoMatrix();
+        MKL_Complex16* RoMatrix = RBM.GetRoMatrix();
 
         TransitionMatrix TM;
         CRSMatrix Ub = TM.GetCRSTransitionMatrix(N);
-
-        MKL_Complex16* NewRoMatrix = TransitionMatrix::GetNewRoMatrix(RoMatrix, Ub, N);
 
         std::cout << l << " / " << epochs << " \n";
 
@@ -30,16 +28,15 @@ void TrainingProcedure(NeuralDensityOperators& DensityOperators, int epochs, acc
                 std::ios_base::out | std::ios_base::trunc);
 
             for (int i = 0; i < N; i++) {
-                fout << NewRoMatrix[i + i * N].real() << "\n";
+                fout << RoMatrix[i + i * N].real() << "\n";
             }
 
             fout.close();
         }
 
-        DensityOperators.WeightUpdate(N, NewRoMatrix, Ub, lr);
+        RBM.WeightUpdate(N, OriginalRoMatrix, RoMatrix, Ub, lr);
 
         delete[]RoMatrix;
-        delete[]NewRoMatrix;
     }
 
     auto diff = std::chrono::high_resolution_clock::now() - start;

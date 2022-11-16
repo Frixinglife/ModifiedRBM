@@ -23,6 +23,9 @@
     <ClCompile Include="Implementation\CRSMatrixExperiments.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="Implementation\TrainingExperiments.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Headers\RoMatrixExperiments.h">
@@ -35,6 +38,9 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="Headers\CRSMatrixExperiments.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\TrainingExperiments.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
