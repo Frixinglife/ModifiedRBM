@@ -153,6 +153,7 @@
     <ClInclude Include="Headers\ModifiedRBM.h" />
     <ClInclude Include="Headers\NeuralDensityOperators.h" />
     <ClInclude Include="Headers\RandomMatricesForRBM.h" />
+    <ClInclude Include="Headers\TrainingProcedure.h" />
     <ClInclude Include="Headers\TransitionMatrix.h" />
   </ItemGroup>
   <ItemGroup>
@@ -161,6 +162,7 @@
     <ClCompile Include="Implementation\ModifiedRBM.cpp" />
     <ClCompile Include="Implementation\NeuralDensityOperators.cpp" />
     <ClCompile Include="Implementation\RandomMatricesForRBM.cpp" />
+    <ClCompile Include="Implementation\TrainingProcedure.cpp" />
     <ClCompile Include="Implementation\TransitionMatrix.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

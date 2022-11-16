@@ -43,5 +43,7 @@ void GetWorkTime(int N_v, int N_h, int N_a, bool plot) {
     fout << "Data type: " << TYPE_OUT << "\n";
     fout << "Time: " << work_time << " s\n\n";
 
+    fout.close();
+
     delete[]RoMatrix;
 }

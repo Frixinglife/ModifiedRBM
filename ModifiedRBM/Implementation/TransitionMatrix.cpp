@@ -209,7 +209,7 @@ CRSMatrix TransitionMatrix::GetCRSTransitionMatrix(int N, bool show) {
 }
 
 
-MKL_Complex16* TransitionMatrix::GetNewRoMatrix(MKL_Complex16* Ro, CRSMatrix Ub, int N) {
+MKL_Complex16* TransitionMatrix::GetNewRoMatrix(MKL_Complex16* Ro, CRSMatrix& Ub, int N) {
 	MKL_Complex16* Intermed = CRSMatrix::MultCRSDense(Ub, Ro, N);
 	
 	// NewRo = Intermed * U^† -> NewRo^T = (U^†)^T * (Intermed)^T = U^* * (Intermed)^T

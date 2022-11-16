@@ -241,6 +241,8 @@ MKL_Complex16* NeuralDensityOperators::GetRoMatrix(double *work_time, bool plot)
         for (int i = 0; i < N_v; i++) {
             fout << RoMatrix[i + i * N_v].real() << "\n";
         }
+
+        fout.close();
     }
 
     return RoMatrix;
@@ -450,7 +452,7 @@ acc_number NeuralDensityOperators::WeightSumRo(int N, MKL_Complex16* Ro, int ind
     return Result;
 }
 
-TComplex NeuralDensityOperators::WeightSumLambdaMu(int N, MKL_Complex16* Ro, CRSMatrix Ub, 
+TComplex NeuralDensityOperators::WeightSumLambdaMu(int N, MKL_Complex16* Ro, CRSMatrix& Ub, 
     int ind_sum, int ind_i, int ind_j, char LambdaOrMu, char Variable) {
 
     TComplex Sum(ZERO, ZERO);
@@ -503,7 +505,7 @@ TComplex NeuralDensityOperators::WeightSumLambdaMu(int N, MKL_Complex16* Ro, CRS
     return Result;
 }
 
-TComplex NeuralDensityOperators::GetGradLambdaMu(int N, MKL_Complex16* Ro, CRSMatrix Ub, int ind_i, int ind_j,
+TComplex NeuralDensityOperators::GetGradLambdaMu(int N, MKL_Complex16* Ro, CRSMatrix& Ub, int ind_i, int ind_j,
     char LambdaOrMu, char Variable) {
 
     TComplex Result(ZERO, ZERO);
@@ -517,4 +519,91 @@ TComplex NeuralDensityOperators::GetGradLambdaMu(int N, MKL_Complex16* Ro, CRSMa
     }
 
     return Result;
+}
+
+void NeuralDensityOperators::WeightUpdate(int N, MKL_Complex16* Ro, CRSMatrix& Ub, acc_number lr) {
+    int N_v = FirstModifiedRBM.N_v;
+    int N_h = FirstModifiedRBM.N_h;
+    int N_a = FirstModifiedRBM.N_a;
+
+    //std::cout << "Grads for W (Lambda):\n";
+    for (int i = 0; i < N_h; i++) {
+        for (int j = 0; j < N_v; j++) {
+            TComplex grad = GetGradLambdaMu(N, Ro, Ub, i, j, 'L', 'W');
+            FirstModifiedRBM.W[j + i * N_v] -= lr * grad.real();
+            //std::cout << grad << "\n";
+        }
+    }
+   
+    //std::cout << "\nGrads for V (Lambda):\n";
+    for (int i = 0; i < N_a; i++) {
+        for (int j = 0; j < N_v; j++) {
+            TComplex grad = GetGradLambdaMu(N, Ro, Ub, i, j, 'L', 'V');
+            FirstModifiedRBM.V[j + i * N_v] -= lr * grad.real();
+            //std::cout << grad << "\n";
+        }
+    }
+
+    //std::cout << "\nGrads for b (Lambda):\n";
+    for (int i = 0; i < N_v; i++) {
+        TComplex grad = GetGradLambdaMu(N, Ro, Ub, i, 0, 'L', 'b');
+        FirstModifiedRBM.b[i] -= lr * grad.real();
+        //std::cout << grad << "\n";
+    }
+
+    //std::cout << "\nGrads for c (Lambda):\n";
+    for (int i = 0; i < N_h; i++) {
+        TComplex grad = GetGradLambdaMu(N, Ro, Ub, i, 0, 'L', 'c');
+        FirstModifiedRBM.c[i] -= lr * grad.real();
+        //std::cout << grad << "\n";
+    }
+
+    //std::cout << "\nGrads for d (Lambda):\n";
+    for (int i = 0; i < N_a; i++) {
+        TComplex grad = GetGradLambdaMu(N, Ro, Ub, i, 0, 'L', 'd');
+        FirstModifiedRBM.d[i] -= lr * grad.real();
+        //std::cout << grad << "\n";
+    }
+
+    //std::cout << "\nGrads for W (Mu):\n";
+    for (int i = 0; i < N_h; i++) {
+        for (int j = 0; j < N_v; j++) {
+            TComplex grad = GetGradLambdaMu(N, Ro, Ub, i, j, 'M', 'W');
+            SecondModifiedRBM.W[j + i * N_v] -= lr * grad.imag();
+            //std::cout << grad << "\n";
+        }
+    }
+
+    //std::cout << "\nGrads for V (Mu):\n";
+    for (int i = 0; i < N_a; i++) {
+        for (int j = 0; j < N_v; j++) {
+            TComplex grad = GetGradLambdaMu(N, Ro, Ub, i, j, 'M', 'V');
+            SecondModifiedRBM.V[j + i * N_v] -= lr * grad.real();
+            //std::cout << grad << "\n";
+        }
+    }
+
+    //std::cout << "\nGrads for b (Mu):\n";
+    for (int i = 0; i < N_v; i++) {
+        TComplex grad = GetGradLambdaMu(N, Ro, Ub, i, 0, 'M', 'b');
+        SecondModifiedRBM.b[i] -= lr * grad.imag();
+        //std::cout << grad << "\n";
+    }
+
+    //std::cout << "\nGrads for c (Mu):\n";
+    for (int i = 0; i < N_h; i++) {
+        TComplex grad = GetGradLambdaMu(N, Ro, Ub, i, 0, 'M', 'c');
+        SecondModifiedRBM.c[i] -= lr * grad.imag();
+        //std::cout << grad << "\n";
+    }
+
+    // Градиенты для d (Mu) равны нулю
+
+    //std::cout << "\nGrads for d (Mu):\n";
+    //for (int i = 0; i < N_a; i++) {
+    //    SecondModifiedRBM.d[i];
+    //    TComplex grad = GetGradLambdaMu(N, Ro, Ub, i, 0, 'M', 'd');
+    //    std::cout << grad << "\n";
+    //}
+    //std::cout << "\n\n";
 }

@@ -28,7 +28,7 @@ public:
     static MKL_Complex16* GetNewRoMatrix(MKL_Complex16* Ro, MKL_Complex16* Ub, MKL_Complex16* Ub_t, int N);
 
     CRSMatrix GetCRSTransitionMatrix(int N, bool show = false);
-    static MKL_Complex16* GetNewRoMatrix(MKL_Complex16* Ro, CRSMatrix Ub, int N);
+    static MKL_Complex16* GetNewRoMatrix(MKL_Complex16* Ro, CRSMatrix& Ub, int N);
 };
 
 #endif //_TRANSITION_MATRIX_H_

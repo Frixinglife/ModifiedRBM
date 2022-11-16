@@ -52,8 +52,8 @@ void ModifiedRBM::PrintModifiedRBM(const std::string& NameRBM) const {
     std::cout << "N_v = " << N_v << ", N_h = " << N_h << ", N_a = " << N_a << "\n\n";
 
     std::cout << "W:" << "\n";
-    for (int i = 0; i < N_h; ++i) {
-        for (int j = 0; j < N_v; ++j) {
+    for (int i = 0; i < N_h; i++) {
+        for (int j = 0; j < N_v; j++) {
             std::cout << std::setw(15) << W[j + i * N_v];
         }
         std::cout << "\n";
@@ -61,8 +61,8 @@ void ModifiedRBM::PrintModifiedRBM(const std::string& NameRBM) const {
     std::cout << "\n";
 
     std::cout << "V:" << "\n";
-    for (int i = 0; i < N_a; ++i) {
-        for (int j = 0; j < N_v; ++j) {
+    for (int i = 0; i < N_a; i++) {
+        for (int j = 0; j < N_v; j++) {
             std::cout << std::setw(15) << V[j + i * N_v];
         }
         std::cout << "\n";
@@ -70,19 +70,19 @@ void ModifiedRBM::PrintModifiedRBM(const std::string& NameRBM) const {
     std::cout << "\n";
 
     std::cout << "b:" << "\n";
-    for (int i = 0; i < N_v; ++i) {
+    for (int i = 0; i < N_v; i++) {
         std::cout << b[i] << "\n";
     }
     std::cout << "\n";
 
     std::cout << "c:" << "\n";
-    for (int i = 0; i < N_h; ++i) {
+    for (int i = 0; i < N_h; i++) {
         std::cout << c[i] << "\n";
     }
     std::cout << "\n";
 
     std::cout << "d:" << "\n";
-    for (int i = 0; i < N_a; ++i) {
+    for (int i = 0; i < N_a; i++) {
         std::cout << d[i] << "\n";
     }
     std::cout << "\n";

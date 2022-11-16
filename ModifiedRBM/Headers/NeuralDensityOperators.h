@@ -30,11 +30,13 @@ public:
     acc_number GetLogRoGrad(int N, acc_number* Sigma, int i, int j, char Variable);
     
     acc_number WeightSumRo(int N, MKL_Complex16* Ro, int ind_i, int ind_j, char Variable);
-    TComplex WeightSumLambdaMu(int N, MKL_Complex16* Ro, CRSMatrix Ub, int ind_sum, 
+    TComplex WeightSumLambdaMu(int N, MKL_Complex16* Ro, CRSMatrix& Ub, int ind_sum, 
         int ind_i, int ind_j, char LambdaOrMu, char Variable);
 
-    TComplex GetGradLambdaMu(int N, MKL_Complex16* Ro, CRSMatrix Ub, int ind_i, int ind_j, 
+    TComplex GetGradLambdaMu(int N, MKL_Complex16* Ro, CRSMatrix& Ub, int ind_i, int ind_j, 
         char LambdaOrMu, char Variable);
+
+    void WeightUpdate(int N, MKL_Complex16* Ro, CRSMatrix& Ub, acc_number lr);
 };
 
 #endif //_NEURAL_DENSITY_OPERATORS_H_
