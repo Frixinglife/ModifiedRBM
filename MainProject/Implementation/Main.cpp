@@ -6,7 +6,7 @@
 
 int main() {
     int N_v, N_h, N_a;
-    N_v = N_h = N_a = 32;
+    N_v = N_h = N_a = 64;
     acc_number lr = (acc_number)1e-2;
     int epochs = 200;
     int freq = 50;

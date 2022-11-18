@@ -36,7 +36,8 @@ for j in range(len(data_diag_f)):
 		data_diag_diff_local.append(abs(data_diag_f_reference[i] - data_diag_f[j][0][i]))
 	data_diag_diff.append((data_diag_diff_local, data_diag_f[j][1]))
 
-plt.title("Модуль разности диагоналей эталонной матрицы плотности и матрицы плотности из RBM при N = " + str(N))
+plt.title("Модуль разности диагоналей эталонной матрицы плотности и матрицы плотности из RBM при N = " + str(N) 
+    + ", время обучения - " + str(work_time) + " сек")
 plt.xlabel("Номер элемента, i")
 plt.ylabel("Модуль разности")
 

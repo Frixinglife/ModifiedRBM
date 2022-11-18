@@ -30,7 +30,7 @@ for i in range(1, num_epochs + 1):
 N = len(data_diag_f[0][0])
 
 plt.title("Диагональ матрицы плотности ρ при N = " + str(N) + ", число эпох - " 
-    + str(num_epochs) + ", время обучения - " + str(work_time) + " с")
+    + str(num_epochs) + ", время обучения - " + str(work_time) + " сек")
 
 plt.xlabel("Номер элемента, i")
 plt.ylabel("ρ(i,i)")

@@ -11,13 +11,13 @@ void TrainingProcedure(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMat
 
     int N = RBM.FirstModifiedRBM.N_v;
 
+    TransitionMatrix TM;
+    CRSMatrix Ub = TM.GetCRSTransitionMatrix(N);
+
     auto start = std::chrono::high_resolution_clock::now();
 
     for (int l = 1; l <= epochs; l++) {
         MKL_Complex16* RoMatrix = RBM.GetRoMatrix();
-
-        TransitionMatrix TM;
-        CRSMatrix Ub = TM.GetCRSTransitionMatrix(N);
 
         std::cout << l << " / " << epochs << " \n";
 
