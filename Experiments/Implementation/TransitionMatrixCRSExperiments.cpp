@@ -11,8 +11,10 @@ void GetTransitionMatrixAndNewRoCRS(int N, bool show) {
     TransitionMatrix::PrintMatrix(RoMatrix, N, N, "Ro matrix");
 
     TransitionMatrix TM;
+    int NumberOfUnitary = 1;
+    int IndexUnitary = 0;
 
-    CRSMatrix Ub = TM.GetCRSTransitionMatrix(N, show);
+    CRSMatrix Ub = TM.GetCRSTransitionMatrix(N, NumberOfUnitary, IndexUnitary, show);
     Ub.PrintCRS("Ub");
 
     MKL_Complex16* NewRoMatrix = TransitionMatrix::GetNewRoMatrix(RoMatrix, Ub, N);

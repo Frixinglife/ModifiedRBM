@@ -12,10 +12,11 @@ public:
     int* colIndex;
     int* rowPtr;
 
-    CRSMatrix(int _n, int _nz);
+    CRSMatrix(int _n = 0, int _nz = 0);
     CRSMatrix(int _n, int _nz, MKL_Complex16* _val, int* _colIndex, int* _rowPtr);
     CRSMatrix(int _n, MKL_Complex16* matrix);
     CRSMatrix(const CRSMatrix& matrix);
+    CRSMatrix& operator=(const CRSMatrix& matrix);
     ~CRSMatrix();
 
     CRSMatrix GetHermitianConjugateCRS();

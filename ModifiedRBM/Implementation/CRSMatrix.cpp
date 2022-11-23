@@ -3,11 +3,14 @@
 #include <iomanip>
 
 CRSMatrix::CRSMatrix(int _n, int _nz) {
-	n = _n;
-	nz = _nz;
-	val = new MKL_Complex16[nz];
-	colIndex = new int[nz];
-	rowPtr = new int[n + 1];
+    n = _n;
+    nz = _nz;
+
+    if (n != 0 && nz != 0) {
+        val = new MKL_Complex16[nz];
+        colIndex = new int[nz];
+        rowPtr = new int[n + 1];
+    }
 }
 
 CRSMatrix::CRSMatrix(int _n, int _nz, MKL_Complex16* _val, int* _colIndex, int* _rowPtr) {
@@ -86,10 +89,35 @@ CRSMatrix::CRSMatrix(const CRSMatrix& matrix) {
     }
 }
 
+CRSMatrix& CRSMatrix::operator=(const CRSMatrix& matrix) {
+    if (this == &matrix) {
+        return *this;
+    }
+
+    n = matrix.n;
+    nz = matrix.nz;
+    val = new MKL_Complex16[nz];
+    colIndex = new int[nz];
+    rowPtr = new int[n + 1];
+
+    for (int i = 0; i < nz; i++) {
+        val[i] = matrix.val[i];
+        colIndex[i] = matrix.colIndex[i];
+    }
+
+    for (int i = 0; i < n + 1; i++) {
+        rowPtr[i] = matrix.rowPtr[i];
+    }
+
+    return *this;
+}
+
 CRSMatrix::~CRSMatrix() {
-	delete[] val;
-	delete[] colIndex;
-	delete[] rowPtr;
+    if (n != 0 && nz != 0) {
+        delete[] val;
+        delete[] colIndex;
+        delete[] rowPtr;
+    }
 }
 
 void CRSMatrix::PrintCRS(std::string name) {

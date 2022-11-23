@@ -505,13 +505,15 @@ TComplex NeuralDensityOperators::WeightSumLambdaMu(int N, MKL_Complex16* Ro, CRS
     return Result;
 }
 
-TComplex NeuralDensityOperators::GetGradLambdaMu(int N, MKL_Complex16* OriginalRo, MKL_Complex16* Ro, CRSMatrix& Ub, int ind_i, int ind_j,
+TComplex NeuralDensityOperators::GetGradLambdaMu(int N, MKL_Complex16* OriginalRo, MKL_Complex16* Ro, int NumberOfBases, CRSMatrix* UbMatrices, int ind_i, int ind_j,
     char LambdaOrMu, char Variable) {
 
     TComplex Result(ZERO, ZERO);
 
-    for (int i = 0; i < N; i++) {
-        Result -= (TComplex)OriginalRo[i + i * N] * WeightSumLambdaMu(N, Ro, Ub, i, ind_i, ind_j, LambdaOrMu, Variable);
+    for (int b = 0; b < NumberOfBases; b++) {
+        for (int i = 0; i < N; i++) {
+            Result -= (TComplex)OriginalRo[i + i * N] * WeightSumLambdaMu(N, Ro, UbMatrices[b], i, ind_i, ind_j, LambdaOrMu, Variable);
+        }
     }
 
     if (LambdaOrMu == 'L') {
@@ -521,7 +523,7 @@ TComplex NeuralDensityOperators::GetGradLambdaMu(int N, MKL_Complex16* OriginalR
     return Result;
 }
 
-void NeuralDensityOperators::WeightUpdate(int N, MKL_Complex16* OriginalRo, MKL_Complex16* Ro, CRSMatrix& Ub, acc_number lr) {
+void NeuralDensityOperators::WeightUpdate(int N, MKL_Complex16* OriginalRo, MKL_Complex16* Ro, int NumberOfBases, CRSMatrix* UbMatrices, acc_number lr) {
     int N_v = FirstModifiedRBM.N_v;
     int N_h = FirstModifiedRBM.N_h;
     int N_a = FirstModifiedRBM.N_a;
@@ -532,7 +534,7 @@ void NeuralDensityOperators::WeightUpdate(int N, MKL_Complex16* OriginalRo, MKL_
     #pragma omp parallel for
     for (int i = 0; i < N_h; i++) {
         for (int j = 0; j < N_v; j++) {
-            TComplex grad = GetGradLambdaMu(N, OriginalRo, Ro, Ub, i, j, 'L', 'W');
+            TComplex grad = GetGradLambdaMu(N, OriginalRo, Ro, NumberOfBases, UbMatrices, i, j, 'L', 'W');
             FirstModifiedRBM.W[j + i * N_v] -= lr * grad.real();
         }
     }
@@ -540,33 +542,33 @@ void NeuralDensityOperators::WeightUpdate(int N, MKL_Complex16* OriginalRo, MKL_
     #pragma omp parallel for
     for (int i = 0; i < N_a; i++) {
         for (int j = 0; j < N_v; j++) {
-            TComplex grad = GetGradLambdaMu(N, OriginalRo, Ro, Ub, i, j, 'L', 'V');
+            TComplex grad = GetGradLambdaMu(N, OriginalRo, Ro, NumberOfBases, UbMatrices, i, j, 'L', 'V');
             FirstModifiedRBM.V[j + i * N_v] -= lr * grad.real();
         }
     }
 
     #pragma omp parallel for
     for (int i = 0; i < N_v; i++) {
-        TComplex grad = GetGradLambdaMu(N, OriginalRo, Ro, Ub, i, 0, 'L', 'b');
+        TComplex grad = GetGradLambdaMu(N, OriginalRo, Ro, NumberOfBases, UbMatrices, i, 0, 'L', 'b');
         FirstModifiedRBM.b[i] -= lr * grad.real();
     }
 
     #pragma omp parallel for
     for (int i = 0; i < N_h; i++) {
-        TComplex grad = GetGradLambdaMu(N, OriginalRo, Ro, Ub, i, 0, 'L', 'c');
+        TComplex grad = GetGradLambdaMu(N, OriginalRo, Ro, NumberOfBases, UbMatrices, i, 0, 'L', 'c');
         FirstModifiedRBM.c[i] -= lr * grad.real();
     }
 
     #pragma omp parallel for
     for (int i = 0; i < N_a; i++) {
-        TComplex grad = GetGradLambdaMu(N, OriginalRo, Ro, Ub, i, 0, 'L', 'd');
+        TComplex grad = GetGradLambdaMu(N, OriginalRo, Ro, NumberOfBases, UbMatrices, i, 0, 'L', 'd');
         FirstModifiedRBM.d[i] -= lr * grad.real();
     }
 
     #pragma omp parallel for
     for (int i = 0; i < N_h; i++) {
         for (int j = 0; j < N_v; j++) {
-            TComplex grad = GetGradLambdaMu(N, OriginalRo, Ro, Ub, i, j, 'M', 'W');
+            TComplex grad = GetGradLambdaMu(N, OriginalRo, Ro, NumberOfBases, UbMatrices, i, j, 'M', 'W');
             SecondModifiedRBM.W[j + i * N_v] -= lr * grad.imag();
         }
     }
@@ -574,20 +576,20 @@ void NeuralDensityOperators::WeightUpdate(int N, MKL_Complex16* OriginalRo, MKL_
     #pragma omp parallel for
     for (int i = 0; i < N_a; i++) {
         for (int j = 0; j < N_v; j++) {
-            TComplex grad = GetGradLambdaMu(N, OriginalRo, Ro, Ub, i, j, 'M', 'V');
+            TComplex grad = GetGradLambdaMu(N, OriginalRo, Ro, NumberOfBases, UbMatrices, i, j, 'M', 'V');
             SecondModifiedRBM.V[j + i * N_v] -= lr * grad.real();
         }
     }
 
     #pragma omp parallel for
     for (int i = 0; i < N_v; i++) {
-        TComplex grad = GetGradLambdaMu(N, OriginalRo, Ro, Ub, i, 0, 'M', 'b');
+        TComplex grad = GetGradLambdaMu(N, OriginalRo, Ro, NumberOfBases, UbMatrices, i, 0, 'M', 'b');
         SecondModifiedRBM.b[i] -= lr * grad.imag();
     }
 
     #pragma omp parallel for
     for (int i = 0; i < N_h; i++) {
-        TComplex grad = GetGradLambdaMu(N, OriginalRo, Ro, Ub, i, 0, 'M', 'c');
+        TComplex grad = GetGradLambdaMu(N, OriginalRo, Ro, NumberOfBases, UbMatrices, i, 0, 'M', 'c');
         SecondModifiedRBM.c[i] -= lr * grad.imag();
     }
 }

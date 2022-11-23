@@ -3,12 +3,11 @@
 #include <iostream>
 #include <iomanip>
 
-void CheckUnitaryMatrices(int NumberOfU) {
+void CheckUnitaryMatrices(int NumberOfU, int NumberOfUnitary, int IndexUnitary) {
     TransitionMatrix TM;
-    int UnitaryMatrixCount = 1;
 
     MKL_Complex16* MatricesU = new MKL_Complex16[4 * NumberOfU];
-    TM.GetUnitaryMatrices(MatricesU, NumberOfU, UnitaryMatrixCount);
+    TM.GetUnitaryMatrices(MatricesU, NumberOfU, NumberOfUnitary, IndexUnitary);
     TM.ShowUnitaryMatrices(MatricesU, NumberOfU);
 
     MKL_Complex16* MatricesUt = new MKL_Complex16[4 * NumberOfU];
@@ -69,8 +68,10 @@ void GetTransitionMatrixAndNewRo(int N, bool show) {
     TransitionMatrix::PrintMatrix(RoMatrix, N, N, "Ro matrix");
 
     TransitionMatrix TM;
+    int NumberOfUnitary = 1;
+    int IndexUnitary = 0;
 
-    MKL_Complex16* Ub = TM.GetTransitionMatrix(N, show);
+    MKL_Complex16* Ub = TM.GetTransitionMatrix(N, NumberOfUnitary, IndexUnitary, show);
     TransitionMatrix::PrintMatrix(Ub, N, N, "Ub");
 
     MKL_Complex16* Ub_t = TransitionMatrix::GetHermitianConjugateMatrix(Ub, N);

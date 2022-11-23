@@ -2,11 +2,11 @@ import matplotlib.pyplot as plt
 import random
 
 config = []
-with open("config.txt") as f:
+with open("..\\config.txt") as f:
     for line in f:
         config.append(float(line))
 
-num_epochs, freq, work_time = config
+num_epochs, freq, work_time, N = config
 num_epochs = int(num_epochs)
 freq = int(freq)
 
@@ -26,8 +26,6 @@ for i in range(1, num_epochs + 1):
             for line in f:
                 part_data_diag_f.append(float(line))
             data_diag_f.append((part_data_diag_f, i))
-
-N = len(data_diag_f[0][0])
 
 data_diag_diff = []
 for j in range(len(data_diag_f)):

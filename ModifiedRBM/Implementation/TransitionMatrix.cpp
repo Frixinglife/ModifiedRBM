@@ -55,19 +55,24 @@ void TransitionMatrix::GetIdentityMatrix(MKL_Complex16* Matrix) {
 	Matrix[3] = 1.0;
 }
 
-void TransitionMatrix::GetUnitaryMatrices(MKL_Complex16* Matrices, int NumberOfU, int UnitaryMatrixCount, double left, double right) {
-
+void TransitionMatrix::GetUnitaryMatrices(MKL_Complex16* Matrices, int NumberOfU, int NumberOfUnitary, int IndexUnitary, double left, double right) {
 	int N = 4 * NumberOfU;
+	int IndexUnitaryCurr = 4 * IndexUnitary;
 	double* ElementsU = new double[N];
 	vdRngUniform(VSL_RNG_METHOD_UNIFORM_STD, stream, N, ElementsU, left, right);
 
 	int index = 0;
 
-	while (index < 4 * UnitaryMatrixCount) {
-		double a = ElementsU[index];
-		double b = ElementsU[index + 1];
-		double c = ElementsU[index + 2];
-		double d = ElementsU[index + 3];
+	while (index < IndexUnitaryCurr) {
+		GetIdentityMatrix(Matrices + index);
+		index += 4;
+	}
+
+	while (index < IndexUnitaryCurr + 4 * NumberOfUnitary) {
+		double a = ElementsU[index - IndexUnitaryCurr];
+		double b = ElementsU[index + 1 - IndexUnitaryCurr];
+		double c = ElementsU[index + 2 - IndexUnitaryCurr];
+		double d = ElementsU[index + 3 - IndexUnitaryCurr];
 		GetUnitaryMatrix(Matrices + index, a, b, c, d);
 		index += 4;
 	}
@@ -118,7 +123,7 @@ void TransitionMatrix::KroneckerProduction(MKL_Complex16* Matrix_A, int size_A, 
 	}
 }
 
-MKL_Complex16* TransitionMatrix::GetTransitionMatrix(int N, bool show) {
+MKL_Complex16* TransitionMatrix::GetTransitionMatrix(int N, int NumberOfUnitary, int IndexUnitary, bool show) {
 	bool PowerOfTwo = IsPowerOfTwo(N);
 	if (!PowerOfTwo) {
 		std::cout << "N is not a power of two\n";
@@ -126,10 +131,15 @@ MKL_Complex16* TransitionMatrix::GetTransitionMatrix(int N, bool show) {
 	}
 	
 	int NumberOfU = static_cast<int>(std::log2(N));
-	int MatrixCount = 1;
+	int MatrixCount = NumberOfUnitary;
+
+	if (IndexUnitary > NumberOfU - MatrixCount) {
+		std::cout << "Incorrect unitary matrix index\n";
+		return nullptr;
+	}
 	
 	MKL_Complex16* MatricesU = new MKL_Complex16[4 * NumberOfU];
-	GetUnitaryMatrices(MatricesU, NumberOfU, MatrixCount);
+	GetUnitaryMatrices(MatricesU, NumberOfU, MatrixCount, IndexUnitary);
 
 	if (show) {
 		ShowUnitaryMatrices(MatricesU, NumberOfU);
@@ -204,8 +214,8 @@ MKL_Complex16* TransitionMatrix::GetNewRoMatrix(MKL_Complex16* Ro, MKL_Complex16
 	return NewRo;
 }
 
-CRSMatrix TransitionMatrix::GetCRSTransitionMatrix(int N, bool show) {
-	return CRSMatrix(N, GetTransitionMatrix(N, show));
+CRSMatrix TransitionMatrix::GetCRSTransitionMatrix(int N, int NumberOfUnitary, int IndexUnitary, bool show) {
+	return CRSMatrix(N, GetTransitionMatrix(N, NumberOfUnitary, IndexUnitary, show));
 }
 
 
