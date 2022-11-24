@@ -28,6 +28,36 @@ void MatrixAndVectorOperations::MultVectorByNumber(int N, acc_number* Vec, acc_n
     }
 }
 
+void MatrixAndVectorOperations::MultVectorByNumberInPlace(int N, acc_number* Vec, acc_number Number) {
+    for (int i = 0; i < N; i++) {
+        Vec[i] *= Number;
+    }
+}
+
+void MatrixAndVectorOperations::MultMatrixByNumberInPlace(int N, int M, acc_number* Matrix, acc_number Number) {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            Matrix[j + i * M] *= Number;
+        }
+    }
+}
+
+void MatrixAndVectorOperations::MatrixAdd(int N, int M, acc_number* FirstMatrix, acc_number* SecondMatrix, acc_number* Result) {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            Result[j + i * M] = FirstMatrix[j + i * M] + SecondMatrix[j + i * M];
+        }
+    }
+}
+
+void MatrixAndVectorOperations::MatrixSub(int N, int M, acc_number* FirstMatrix, acc_number* SecondMatrix, acc_number* Result) {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            Result[j + i * M] = FirstMatrix[j + i * M] - SecondMatrix[j + i * M];
+        }
+    }
+}
+
 void MatrixAndVectorOperations::MatrixVectorMult(int N, int M, acc_number* Matrix, acc_number* Vec, acc_number* Result) {
     acc_number alpha = (acc_number)1.0;
     acc_number beta = (acc_number)0.0;
@@ -37,6 +67,22 @@ void MatrixAndVectorOperations::MatrixVectorMult(int N, int M, acc_number* Matri
     int incy = 1;
 
     Tcblas_v(CblasRowMajor, CblasNoTrans, N, M, alpha, Matrix, lda, Vec, incx, beta, Result, incy);
+}
+
+void MatrixAndVectorOperations::VectorVectorMult(int N, int M, acc_number* FirstVec, acc_number* SecondVec, acc_number* MatrixResult) {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            MatrixResult[j + i * M] = FirstVec[i] * SecondVec[j];
+        }
+    }
+}
+
+void MatrixAndVectorOperations::VectorVectorMult(int N, int M, TComplex* FirstVec, TComplex* SecondVec, TComplex* MatrixResult) {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            MatrixResult[j + i * M] = FirstVec[i] * SecondVec[j];
+        }
+    }
 }
 
 void MatrixAndVectorOperations::FindEigMatrix(int N, MKL_Complex16* Matrix, MKL_Complex16* Result) {

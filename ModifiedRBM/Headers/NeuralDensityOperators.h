@@ -22,12 +22,20 @@ public:
 
     acc_number Sigmoid(acc_number arg);
     TComplex Sigmoid(TComplex arg);
+    void Sigmoid(acc_number* arg, int N);
+    void Sigmoid(TComplex* arg, int N);
 
     acc_number GetGammaGrad(int N, acc_number* FirstSigma, acc_number* SecondSigma, 
         int i, int j, char LambdaOrMu, char Variable);
     TComplex GetPiGrad(int N, acc_number* FirstSigma, acc_number* SecondSigma, 
         int i, int j, char LambdaOrMu, char Variable);
     acc_number GetLogRoGrad(int N, acc_number* Sigma, int i, int j, char Variable);
+
+    acc_number* GetGammaGrad(int N, acc_number* FirstSigma, acc_number* SecondSigma,
+        char LambdaOrMu, char Variable);
+    TComplex* GetPiGrad(int N, acc_number* FirstSigma, acc_number* SecondSigma,
+        char LambdaOrMu, char Variable);
+    acc_number* GetLogRoGrad(int N, acc_number* Sigma, char Variable);
     
     acc_number WeightSumRo(int N, MKL_Complex16* Ro, int ind_i, int ind_j, char Variable);
     TComplex WeightSumLambdaMu(int N, MKL_Complex16* Ro, CRSMatrix& Ub, int ind_sum, 

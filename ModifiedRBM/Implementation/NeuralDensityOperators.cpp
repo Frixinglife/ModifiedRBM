@@ -256,6 +256,18 @@ TComplex NeuralDensityOperators::Sigmoid(TComplex arg) {
     return ONE / (ONE + std::exp(-arg));
 }
 
+void NeuralDensityOperators::Sigmoid(acc_number* arg, int N) {
+    for (int i = 0; i < N; i++) {
+        arg[i] = Sigmoid(arg[i]);
+    }
+}
+
+void NeuralDensityOperators::Sigmoid(TComplex* arg, int N) {
+    for (int i = 0; i < N; i++) {
+        arg[i] = Sigmoid(arg[i]);
+    }
+}
+
 acc_number NeuralDensityOperators::GetGammaGrad(int N, acc_number* FirstSigma, acc_number* SecondSigma, 
     int i, int j, char LambdaOrMu, char Variable) {
     acc_number Result = ZERO;
@@ -313,6 +325,139 @@ acc_number NeuralDensityOperators::GetGammaGrad(int N, acc_number* FirstSigma, a
         }
     }
     
+    return Result;
+}
+
+acc_number* NeuralDensityOperators::GetGammaGrad(int N, acc_number* FirstSigma, acc_number* SecondSigma, char LambdaOrMu, char Variable) {
+    acc_number* Result = nullptr;
+
+    int N_h = FirstModifiedRBM.N_h;
+    int N_v = FirstModifiedRBM.N_v;
+
+    acc_number* FirstVec = new acc_number[N_h];
+    acc_number* SecondVec = new acc_number[N_h];
+
+    if (LambdaOrMu == 'L') {
+        switch (Variable) {
+        case 'W':
+            Result = new acc_number[N_h * N_v];
+
+            MatrixAndVectorOperations::MatrixVectorMult(N_h, N_v, FirstModifiedRBM.W, FirstSigma, FirstVec);
+            MatrixAndVectorOperations::MatrixVectorMult(N_h, N_v, FirstModifiedRBM.W, SecondSigma, SecondVec);
+
+            MatrixAndVectorOperations::VectorsAdd(N_h, FirstVec, FirstModifiedRBM.c, FirstVec);
+            MatrixAndVectorOperations::VectorsAdd(N_h, SecondVec, FirstModifiedRBM.c, SecondVec);
+
+            Sigmoid(FirstVec, N_h);
+            Sigmoid(SecondVec, N_h);
+            
+            acc_number* FirstResult = new acc_number[N_h * N_v];
+            acc_number* SecondResult = new acc_number[N_h * N_v];
+            for (int i = 0; i < N_h * N_v; i++) {
+                FirstResult[i] = ZERO;
+                SecondResult[i] = ZERO;
+            }
+
+            MatrixAndVectorOperations::VectorVectorMult(N_h, N_v, FirstVec, FirstSigma, FirstResult);
+            MatrixAndVectorOperations::VectorVectorMult(N_h, N_v, SecondVec, SecondSigma, SecondResult);
+
+            MatrixAndVectorOperations::MatrixAdd(N_h, N_v, FirstResult, SecondResult, Result);
+
+            delete[] FirstResult;
+            delete[] SecondResult;
+
+            MatrixAndVectorOperations::MultMatrixByNumberInPlace(N_h, N_v, Result, HALF);
+            break;
+        case 'V':
+            break;
+        case 'b':
+            Result = new acc_number[N_v];
+            MatrixAndVectorOperations::VectorsAdd(N_v, FirstSigma, SecondSigma, Result);
+            MatrixAndVectorOperations::MultVectorByNumberInPlace(N_v, Result, HALF);
+            break;
+        case 'c':
+            Result = new acc_number[N_h];
+
+            MatrixAndVectorOperations::MatrixVectorMult(N_h, N_v, FirstModifiedRBM.W, FirstSigma, FirstVec);
+            MatrixAndVectorOperations::MatrixVectorMult(N_h, N_v, FirstModifiedRBM.W, SecondSigma, SecondVec);
+
+            MatrixAndVectorOperations::VectorsAdd(N_h, FirstVec, FirstModifiedRBM.c, FirstVec);
+            MatrixAndVectorOperations::VectorsAdd(N_h, SecondVec, FirstModifiedRBM.c, SecondVec);
+
+            Sigmoid(FirstVec, N_h);
+            Sigmoid(SecondVec, N_h);
+
+            MatrixAndVectorOperations::VectorsAdd(N_h, FirstVec, SecondVec, Result);
+            MatrixAndVectorOperations::MultVectorByNumberInPlace(N_h, Result, HALF);
+            break;
+        case 'd':
+            break;
+        default:
+            break;
+        }
+    }
+    else if (LambdaOrMu == 'M') {
+        switch (Variable) {
+        case 'W':
+            Result = new acc_number[N_h * N_v];
+
+            MatrixAndVectorOperations::MatrixVectorMult(N_h, N_v, FirstModifiedRBM.W, FirstSigma, FirstVec);
+            MatrixAndVectorOperations::MatrixVectorMult(N_h, N_v, FirstModifiedRBM.W, SecondSigma, SecondVec);
+
+            MatrixAndVectorOperations::VectorsAdd(N_h, FirstVec, FirstModifiedRBM.c, FirstVec);
+            MatrixAndVectorOperations::VectorsAdd(N_h, SecondVec, FirstModifiedRBM.c, SecondVec);
+
+            Sigmoid(FirstVec, N_h);
+            Sigmoid(SecondVec, N_h);
+
+            acc_number* FirstResult = new acc_number[N_h * N_v];
+            acc_number* SecondResult = new acc_number[N_h * N_v];
+            for (int i = 0; i < N_h * N_v; i++) {
+                FirstResult[i] = ZERO;
+                SecondResult[i] = ZERO;
+            }
+
+            MatrixAndVectorOperations::VectorVectorMult(N_h, N_v, FirstVec, FirstSigma, FirstResult);
+            MatrixAndVectorOperations::VectorVectorMult(N_h, N_v, SecondVec, SecondSigma, SecondResult);
+
+            MatrixAndVectorOperations::MatrixSub(N_h, N_v, FirstResult, SecondResult, Result);
+
+            delete[] FirstResult;
+            delete[] SecondResult;
+
+            MatrixAndVectorOperations::MultMatrixByNumberInPlace(N_h, N_v, Result, HALF);
+            break;
+        case 'V':
+            break;
+        case 'b':
+            Result = new acc_number[N_v];
+            MatrixAndVectorOperations::VectorsSub(N_v, FirstSigma, SecondSigma, Result);
+            MatrixAndVectorOperations::MultVectorByNumberInPlace(N_v, Result, HALF);
+        case 'c':
+            Result = new acc_number[N_h];
+
+            MatrixAndVectorOperations::MatrixVectorMult(N_h, N_v, FirstModifiedRBM.W, FirstSigma, FirstVec);
+            MatrixAndVectorOperations::MatrixVectorMult(N_h, N_v, FirstModifiedRBM.W, SecondSigma, SecondVec);
+
+            MatrixAndVectorOperations::VectorsAdd(N_h, FirstVec, FirstModifiedRBM.c, FirstVec);
+            MatrixAndVectorOperations::VectorsAdd(N_h, SecondVec, FirstModifiedRBM.c, SecondVec);
+
+            Sigmoid(FirstVec, N_h);
+            Sigmoid(SecondVec, N_h);
+
+            MatrixAndVectorOperations::VectorsSub(N_h, FirstVec, SecondVec, Result);
+            MatrixAndVectorOperations::MultVectorByNumberInPlace(N_h, Result, HALF);
+            break;
+        case 'd':
+            break;
+        default:
+            break;
+        }
+    }
+
+    delete[]FirstVec;
+    delete[]SecondVec;
+
     return Result;
 }
 
@@ -391,6 +536,126 @@ TComplex NeuralDensityOperators::GetPiGrad(int N, acc_number* FirstSigma, acc_nu
     return Result;
 }
 
+TComplex* NeuralDensityOperators::GetPiGrad(int N, acc_number* FirstSigma, acc_number* SecondSigma, char LambdaOrMu, char Variable) {
+    TComplex* Result = nullptr;
+
+    int N_v = FirstModifiedRBM.N_v;
+    int N_a = FirstModifiedRBM.N_a;
+
+    acc_number* SumVec = new acc_number[N];
+    acc_number* DiffVec = new acc_number[N];
+    acc_number* FirstVec = new acc_number[N_a];
+    acc_number* SecondVec = new acc_number[N_a];
+    TComplex* FirstArg = new TComplex[N];
+    TComplex* SecondArg = new TComplex[N];
+
+    if (LambdaOrMu == 'L') {
+        switch (Variable) {
+        case 'W':
+            break;
+        case 'V':
+            Result = new TComplex[N_a * N_v];
+
+            MatrixAndVectorOperations::VectorsAdd(N, FirstSigma, SecondSigma, SumVec);
+            MatrixAndVectorOperations::VectorsSub(N, FirstSigma, SecondSigma, DiffVec);
+
+            MatrixAndVectorOperations::MatrixVectorMult(N_a, N_v, FirstModifiedRBM.V, SumVec, FirstVec);
+            MatrixAndVectorOperations::MatrixVectorMult(N_a, N_v, SecondModifiedRBM.V, DiffVec, SecondVec);
+
+            MatrixAndVectorOperations::MultVectorByNumberInPlace(N_a, FirstVec, HALF);
+            MatrixAndVectorOperations::MultVectorByNumberInPlace(N_a, SecondVec, HALF);
+
+            MatrixAndVectorOperations::VectorsAdd(N_a, FirstVec, FirstModifiedRBM.d, FirstVec);
+            
+            for (int i = 0; i < N_a; i++) {
+                FirstArg[i] = TComplex(FirstVec[i], SecondVec[i]);
+            }
+
+            for (int i = 0; i < N; i++) {
+                SecondArg[i] = TComplex(HALF * SumVec[i]);
+            }
+
+            Sigmoid(FirstArg, N_a);
+            MatrixAndVectorOperations::VectorVectorMult(N_a, N_v, FirstArg, SecondArg, Result);
+            break;
+        case 'b':
+            break;
+        case 'c':
+            break;
+        case 'd':
+            Result = new TComplex[N_a];
+
+            MatrixAndVectorOperations::VectorsAdd(N, FirstSigma, SecondSigma, SumVec);
+            MatrixAndVectorOperations::VectorsSub(N, FirstSigma, SecondSigma, DiffVec);
+
+            MatrixAndVectorOperations::MatrixVectorMult(N_a, N_v, FirstModifiedRBM.V, SumVec, FirstVec);
+            MatrixAndVectorOperations::MatrixVectorMult(N_a, N_v, SecondModifiedRBM.V, DiffVec, SecondVec);
+
+            MatrixAndVectorOperations::MultVectorByNumberInPlace(N_a, FirstVec, HALF);
+            MatrixAndVectorOperations::MultVectorByNumberInPlace(N_a, SecondVec, HALF);
+
+            MatrixAndVectorOperations::VectorsAdd(N_a, FirstVec, FirstModifiedRBM.d, FirstVec);
+
+            for (int i = 0; i < N_a; i++) {
+                FirstArg[i] = TComplex(FirstVec[i], SecondVec[i]);
+            }
+
+            Sigmoid(FirstArg, N_a);
+            break;
+        default:
+            break;
+        }
+    }
+    else if (LambdaOrMu == 'M') {
+        switch (Variable) {
+        case 'W':
+            break;
+        case 'V':
+            Result = new TComplex[N_a * N_v];
+
+            MatrixAndVectorOperations::VectorsAdd(N, FirstSigma, SecondSigma, SumVec);
+            MatrixAndVectorOperations::VectorsSub(N, FirstSigma, SecondSigma, DiffVec);
+
+            MatrixAndVectorOperations::MatrixVectorMult(N_a, N_v, FirstModifiedRBM.V, SumVec, FirstVec);
+            MatrixAndVectorOperations::MatrixVectorMult(N_a, N_v, SecondModifiedRBM.V, DiffVec, SecondVec);
+
+            MatrixAndVectorOperations::MultVectorByNumberInPlace(N_a, FirstVec, HALF);
+            MatrixAndVectorOperations::MultVectorByNumberInPlace(N_a, SecondVec, HALF);
+
+            MatrixAndVectorOperations::VectorsAdd(N_a, FirstVec, FirstModifiedRBM.d, FirstVec);
+
+            for (int i = 0; i < N_a; i++) {
+                FirstArg[i] = TComplex(FirstVec[i], SecondVec[i]);
+            }
+
+            for (int i = 0; i < N; i++) {
+                SecondArg[i] = TComplex(ZERO, HALF * DiffVec[i]);
+            }
+
+            Sigmoid(FirstArg, N_a);
+            MatrixAndVectorOperations::VectorVectorMult(N_a, N_v, FirstArg, SecondArg, Result);
+            break;
+        case 'b':
+            break;
+        case 'c':
+            break;
+        case 'd':
+            break;
+        default:
+            break;
+        }
+    }
+
+    delete[]SumVec;
+    delete[]DiffVec;
+    delete[]FirstVec;
+    delete[]SecondVec;
+    delete[]FirstArg;
+    delete[]SecondVec;
+
+    return Result;
+}
+
 acc_number NeuralDensityOperators::GetLogRoGrad(int N, acc_number* Sigma, int i, int j, char Variable) {
     acc_number Result = ZERO;
 
@@ -417,6 +682,61 @@ acc_number NeuralDensityOperators::GetLogRoGrad(int N, acc_number* Sigma, int i,
     case 'd':
         Arg = MatrixAndVectorOperations::ScalarVectorMult(N, V_i, Sigma) + FirstModifiedRBM.d[i];
         Result = Sigmoid(Arg);
+        break;
+    default:
+        break;
+    }
+
+    return Result;
+}
+
+acc_number* NeuralDensityOperators::GetLogRoGrad(int N, acc_number* Sigma, char Variable) {
+    acc_number* Result = nullptr;
+
+    int N_h = FirstModifiedRBM.N_h;
+    int N_v = FirstModifiedRBM.N_v;
+    int N_a = FirstModifiedRBM.N_a;
+
+    switch (Variable) {
+    case 'W':
+        Result = new acc_number[N_h * N_v];
+        acc_number* Vec = new acc_number[N_h];
+
+        MatrixAndVectorOperations::MatrixVectorMult(N_h, N_v, FirstModifiedRBM.W, Sigma, Vec);
+        MatrixAndVectorOperations::VectorsAdd(N_h, Vec, FirstModifiedRBM.c, Vec);
+        Sigmoid(Vec, N_h);
+        MatrixAndVectorOperations::VectorVectorMult(N_h, N_v, Vec, Sigma, Result);
+
+        delete[]Vec;
+        break;
+    case 'V':
+        Result = new acc_number[N_a * N_v];
+        acc_number* Vec = new acc_number[N_a];
+
+        MatrixAndVectorOperations::MatrixVectorMult(N_a, N_v, FirstModifiedRBM.V, Sigma, Vec);
+        MatrixAndVectorOperations::VectorsAdd(N_a, Vec, FirstModifiedRBM.d, Vec);
+        Sigmoid(Vec, N_a);
+        MatrixAndVectorOperations::VectorVectorMult(N_a, N_v, Vec, Sigma, Result);
+
+        delete[]Vec;
+        break;
+    case 'b':
+        Result = new acc_number[N_v];
+        for (int i = 0; i < N_v; i++) {
+            Result[i] = Sigma[i];
+        }
+        break;
+    case 'c':
+        Result = new acc_number[N_h];
+        MatrixAndVectorOperations::MatrixVectorMult(N_h, N_v, FirstModifiedRBM.W, Sigma, Result);
+        MatrixAndVectorOperations::VectorsAdd(N_h, Result, FirstModifiedRBM.c, Result);
+        Sigmoid(Result, N_h);
+        break;
+    case 'd':
+        Result = new acc_number[N_a];
+        MatrixAndVectorOperations::MatrixVectorMult(N_a, N_v, FirstModifiedRBM.V, Sigma, Result);
+        MatrixAndVectorOperations::VectorsAdd(N_a, Result, FirstModifiedRBM.d, Result);
+        Sigmoid(Result, N_a);
         break;
     default:
         break;
