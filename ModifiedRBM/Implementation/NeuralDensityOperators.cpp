@@ -772,6 +772,120 @@ acc_number NeuralDensityOperators::WeightSumRo(int N, MKL_Complex16* Ro, int ind
     return Result;
 }
 
+acc_number* NeuralDensityOperators::WeightSumRo(int N, MKL_Complex16* Ro, char Variable) {
+    acc_number* Result = nullptr;
+
+    int N_h = FirstModifiedRBM.N_h;
+    int N_v = FirstModifiedRBM.N_v;
+    int N_a = FirstModifiedRBM.N_a;
+
+    acc_number Sum = ZERO;
+    for (int i = 0; i < N; i++) {
+        Sum += (acc_number)Ro[i + i * N].real();
+    }
+    Sum = ONE / Sum;
+
+    acc_number* Sigma = new acc_number[N];
+    for (int i = 0; i < N; i++) {
+        Sigma[i] = ZERO;
+    }
+
+    int size = 0;
+    switch (Variable) {
+    case 'W':
+        size = N_h * N_v;
+        break;
+    case 'V':
+        size = N_a * N_v;
+        break;
+    case 'b':
+        size = N_v;
+        break;
+    case 'c':
+        size = N_h;
+        break;
+    case 'd':
+        size = N_a;
+        break;
+    default:
+        break;
+    }
+
+    Result = new acc_number[size];
+    for (int i = 0; i < size; i++) {
+        Result[i] = ZERO;
+    }
+
+    switch (Variable) {
+    case 'W':
+        for (int i = 0; i < N; i++) {
+            Sigma[i] = ONE;
+            acc_number coef = (acc_number)Ro[i + i * N].real();
+            acc_number* LogRoGrad = GetLogRoGrad(N, Sigma, 'W');
+            MatrixAndVectorOperations::MultMatrixByNumberInPlace(N_h, N_v, LogRoGrad, coef);
+            MatrixAndVectorOperations::MatrixAdd(N_h, N_v, Result, LogRoGrad, Result);
+            Sigma[i] = ZERO;
+            delete[]LogRoGrad;
+        }
+        MatrixAndVectorOperations::MultMatrixByNumberInPlace(N_h, N_v, Result, Sum);
+        break;
+    case 'V':
+        for (int i = 0; i < N; i++) {
+            Sigma[i] = ONE;
+            acc_number coef = (acc_number)Ro[i + i * N].real();
+            acc_number* LogRoGrad = GetLogRoGrad(N, Sigma, 'V');
+            MatrixAndVectorOperations::MultMatrixByNumberInPlace(N_a, N_v, LogRoGrad, coef);
+            MatrixAndVectorOperations::MatrixAdd(N_a, N_v, Result, LogRoGrad, Result);
+            Sigma[i] = ZERO;
+            delete[]LogRoGrad;
+        }
+        MatrixAndVectorOperations::MultMatrixByNumberInPlace(N_a, N_v, Result, Sum);
+        break;
+    case 'b':
+        for (int i = 0; i < N; i++) {
+            Sigma[i] = ONE;
+            acc_number coef = (acc_number)Ro[i + i * N].real();
+            acc_number* LogRoGrad = GetLogRoGrad(N, Sigma, 'b');
+            MatrixAndVectorOperations::MultVectorByNumberInPlace(N_v, LogRoGrad, coef);
+            MatrixAndVectorOperations::VectorsAdd(N_v, Result, LogRoGrad, Result);
+            Sigma[i] = ZERO;
+            delete[]LogRoGrad;
+        }
+        MatrixAndVectorOperations::MultVectorByNumberInPlace(N_v, Result, Sum);
+        break;
+    case 'c':
+        for (int i = 0; i < N; i++) {
+            Sigma[i] = ONE;
+            acc_number coef = (acc_number)Ro[i + i * N].real();
+            acc_number* LogRoGrad = GetLogRoGrad(N, Sigma, 'c');
+            MatrixAndVectorOperations::MultVectorByNumberInPlace(N_h, LogRoGrad, coef);
+            MatrixAndVectorOperations::VectorsAdd(N_h, Result, LogRoGrad, Result);
+            Sigma[i] = ZERO;
+            delete[]LogRoGrad;
+        }
+        MatrixAndVectorOperations::MultVectorByNumberInPlace(N_h, Result, Sum);
+        break;
+    case 'd':
+        for (int i = 0; i < N; i++) {
+            Sigma[i] = ONE;
+            acc_number coef = (acc_number)Ro[i + i * N].real();
+            acc_number* LogRoGrad = GetLogRoGrad(N, Sigma, 'd');
+            MatrixAndVectorOperations::MultVectorByNumberInPlace(N_a, LogRoGrad, coef);
+            MatrixAndVectorOperations::VectorsAdd(N_a, Result, LogRoGrad, Result);
+            Sigma[i] = ZERO;
+            delete[]LogRoGrad;
+        }
+        MatrixAndVectorOperations::MultVectorByNumberInPlace(N_a, Result, Sum);
+        break;
+    default:
+        break;
+    }
+
+    delete[] Sigma;
+
+    return Result;
+}
+
 TComplex NeuralDensityOperators::WeightSumLambdaMu(int N, MKL_Complex16* Ro, CRSMatrix& Ub, 
     int ind_sum, int ind_i, int ind_j, char LambdaOrMu, char Variable) {
 
@@ -825,6 +939,387 @@ TComplex NeuralDensityOperators::WeightSumLambdaMu(int N, MKL_Complex16* Ro, CRS
     return Result;
 }
 
+TComplex* NeuralDensityOperators::WeightSumLambdaMu(int N, MKL_Complex16* OriginalRo, MKL_Complex16* Ro, int NumberOfBases,
+    CRSMatrix* UbMatrices, char LambdaOrMu, char Variable) {
+
+    int N_h = FirstModifiedRBM.N_h;
+    int N_v = FirstModifiedRBM.N_v;
+    int N_a = FirstModifiedRBM.N_a;
+
+    int size = 0;
+    switch (Variable) {
+    case 'W':
+        size = N_h * N_v;
+        break;
+    case 'V':
+        size = N_a * N_v;
+        break;
+    case 'b':
+        size = N_v;
+        break;
+    case 'c':
+        size = N_h;
+        break;
+    case 'd':
+        size = N_a;
+        break;
+    default:
+        break;
+    }
+
+    TComplex* Result = new TComplex[size];
+    for (int i = 0; i < size; i++) {
+        Result[i] = TComplex(ZERO, ZERO);
+    }
+
+    for (int b = 0; b < NumberOfBases; b++) {
+        for (int i_n = 0; i_n < N; i_n++) {
+            TComplex Sum(ZERO, ZERO);
+            for (int i = UbMatrices[b].rowPtr[i_n]; i < UbMatrices[b].rowPtr[i_n + 1]; i++) {
+                for (int j = UbMatrices[b].rowPtr[i_n]; j < UbMatrices[b].rowPtr[i_n + 1]; j++) {
+                    int col_i = UbMatrices[b].colIndex[i];
+                    int col_j = UbMatrices[b].colIndex[j];
+                    TComplex CSR_val_i((acc_number)UbMatrices[b].val[i].real(), (acc_number)-UbMatrices[b].val[i].imag());
+                    TComplex CSR_val_j((acc_number)UbMatrices[b].val[j].real(), (acc_number)UbMatrices[b].val[j].imag());
+                    Sum += CSR_val_i * CSR_val_j * (TComplex)Ro[col_j + col_i * N];
+                }
+            }
+            Sum = TComplex((acc_number)Ro[i_n + i_n * N].real(), ZERO) / Sum;
+
+            acc_number* FirstSigma = new acc_number[N];
+            acc_number* SecondSigma = new acc_number[N];
+            for (int i = 0; i < N; i++) {
+                FirstSigma[i] = ZERO;
+                SecondSigma[i] = ZERO;
+            }
+
+            TComplex* LocalResult = new TComplex[size];
+            for (int i = 0; i < size; i++) {
+                LocalResult[i] = TComplex(ZERO, ZERO);
+            }
+
+            if (LambdaOrMu == 'L') {
+                switch (Variable) {
+                case 'W':
+                    for (int i = UbMatrices[b].rowPtr[i_n]; i < UbMatrices[b].rowPtr[i_n + 1]; i++) {
+                        for (int j = UbMatrices[b].rowPtr[i_n]; j < UbMatrices[b].rowPtr[i_n + 1]; j++) {
+                            int col_i = UbMatrices[b].colIndex[i];
+                            int col_j = UbMatrices[b].colIndex[j];
+                            TComplex CSR_val_i((acc_number)UbMatrices[b].val[i].real(), (acc_number)-UbMatrices[b].val[i].imag());
+                            TComplex CSR_val_j((acc_number)UbMatrices[b].val[j].real(), (acc_number)UbMatrices[b].val[j].imag());
+                            FirstSigma[col_i] = ONE;
+                            SecondSigma[col_j] = ONE;
+
+                            TComplex* PiGrad = GetPiGrad(N, FirstSigma, SecondSigma, 'L', 'W');
+                            acc_number* GammaGrad = GetGammaGrad(N, FirstSigma, SecondSigma, 'L', 'W');
+                            for (int ind = 0; ind < size; ind++) {
+                                PiGrad[ind] += TComplex(GammaGrad[i], ZERO);
+                            }
+
+                            TComplex coef = CSR_val_i * CSR_val_j * (TComplex)Ro[col_j + col_i * N];
+                            MatrixAndVectorOperations::MultMatrixByNumberInPlace(N_h, N_v, PiGrad, coef);
+                            MatrixAndVectorOperations::MatrixAdd(N_h, N_v, LocalResult, PiGrad, LocalResult);
+
+                            FirstSigma[col_i] = ZERO;
+                            SecondSigma[col_j] = ZERO;
+
+                            delete[] GammaGrad;
+                            delete[] PiGrad;
+                        }
+                    }
+                    MatrixAndVectorOperations::MultMatrixByNumberInPlace(N_h, N_v, LocalResult, Sum);
+                    MatrixAndVectorOperations::MatrixSub(N_h, N_v, Result, LocalResult, Result);
+                    break;
+                case 'V':
+                    for (int i = UbMatrices[b].rowPtr[i_n]; i < UbMatrices[b].rowPtr[i_n + 1]; i++) {
+                        for (int j = UbMatrices[b].rowPtr[i_n]; j < UbMatrices[b].rowPtr[i_n + 1]; j++) {
+                            int col_i = UbMatrices[b].colIndex[i];
+                            int col_j = UbMatrices[b].colIndex[j];
+                            TComplex CSR_val_i((acc_number)UbMatrices[b].val[i].real(), (acc_number)-UbMatrices[b].val[i].imag());
+                            TComplex CSR_val_j((acc_number)UbMatrices[b].val[j].real(), (acc_number)UbMatrices[b].val[j].imag());
+                            FirstSigma[col_i] = ONE;
+                            SecondSigma[col_j] = ONE;
+
+                            TComplex* PiGrad = GetPiGrad(N, FirstSigma, SecondSigma, 'L', 'V');
+                            acc_number* GammaGrad = GetGammaGrad(N, FirstSigma, SecondSigma, 'L', 'V');
+                            for (int ind = 0; ind < size; ind++) {
+                                PiGrad[ind] += TComplex(GammaGrad[i], ZERO);
+                            }
+
+                            TComplex coef = CSR_val_i * CSR_val_j * (TComplex)Ro[col_j + col_i * N];
+                            MatrixAndVectorOperations::MultMatrixByNumberInPlace(N_a, N_v, PiGrad, coef);
+                            MatrixAndVectorOperations::MatrixAdd(N_a, N_v, LocalResult, PiGrad, LocalResult);
+
+                            FirstSigma[col_i] = ZERO;
+                            SecondSigma[col_j] = ZERO;
+
+                            delete[] GammaGrad;
+                            delete[] PiGrad;
+                        }
+                    }
+                    MatrixAndVectorOperations::MultMatrixByNumberInPlace(N_a, N_v, LocalResult, Sum);
+                    MatrixAndVectorOperations::MatrixSub(N_a, N_v, Result, LocalResult, Result);
+                    break;
+                case 'b':
+                    for (int i = UbMatrices[b].rowPtr[i_n]; i < UbMatrices[b].rowPtr[i_n + 1]; i++) {
+                        for (int j = UbMatrices[b].rowPtr[i_n]; j < UbMatrices[b].rowPtr[i_n + 1]; j++) {
+                            int col_i = UbMatrices[b].colIndex[i];
+                            int col_j = UbMatrices[b].colIndex[j];
+                            TComplex CSR_val_i((acc_number)UbMatrices[b].val[i].real(), (acc_number)-UbMatrices[b].val[i].imag());
+                            TComplex CSR_val_j((acc_number)UbMatrices[b].val[j].real(), (acc_number)UbMatrices[b].val[j].imag());
+                            FirstSigma[col_i] = ONE;
+                            SecondSigma[col_j] = ONE;
+
+                            TComplex* PiGrad = GetPiGrad(N, FirstSigma, SecondSigma, 'L', 'b');
+                            acc_number* GammaGrad = GetGammaGrad(N, FirstSigma, SecondSigma, 'L', 'b');
+                            for (int ind = 0; ind < size; ind++) {
+                                PiGrad[ind] += TComplex(GammaGrad[i], ZERO);
+                            }
+
+                            TComplex coef = CSR_val_i * CSR_val_j * (TComplex)Ro[col_j + col_i * N];
+                            MatrixAndVectorOperations::MultVectorByNumberInPlace(N_v, PiGrad, coef);
+                            MatrixAndVectorOperations::VectorsAdd(N_v, LocalResult, PiGrad, LocalResult);
+
+                            FirstSigma[col_i] = ZERO;
+                            SecondSigma[col_j] = ZERO;
+
+                            delete[] GammaGrad;
+                            delete[] PiGrad;
+                        }
+                    }
+                    MatrixAndVectorOperations::MultVectorByNumberInPlace(N_v, LocalResult, Sum);
+                    MatrixAndVectorOperations::VectorsSub(N_v, Result, LocalResult, Result);
+                    break;
+                case 'c':
+                    for (int i = UbMatrices[b].rowPtr[i_n]; i < UbMatrices[b].rowPtr[i_n + 1]; i++) {
+                        for (int j = UbMatrices[b].rowPtr[i_n]; j < UbMatrices[b].rowPtr[i_n + 1]; j++) {
+                            int col_i = UbMatrices[b].colIndex[i];
+                            int col_j = UbMatrices[b].colIndex[j];
+                            TComplex CSR_val_i((acc_number)UbMatrices[b].val[i].real(), (acc_number)-UbMatrices[b].val[i].imag());
+                            TComplex CSR_val_j((acc_number)UbMatrices[b].val[j].real(), (acc_number)UbMatrices[b].val[j].imag());
+                            FirstSigma[col_i] = ONE;
+                            SecondSigma[col_j] = ONE;
+
+                            TComplex* PiGrad = GetPiGrad(N, FirstSigma, SecondSigma, 'L', 'c');
+                            acc_number* GammaGrad = GetGammaGrad(N, FirstSigma, SecondSigma, 'L', 'c');
+                            for (int ind = 0; ind < size; ind++) {
+                                PiGrad[ind] += TComplex(GammaGrad[i], ZERO);
+                            }
+
+                            TComplex coef = CSR_val_i * CSR_val_j * (TComplex)Ro[col_j + col_i * N];
+                            MatrixAndVectorOperations::MultVectorByNumberInPlace(N_h, PiGrad, coef);
+                            MatrixAndVectorOperations::VectorsAdd(N_h, LocalResult, PiGrad, LocalResult);
+
+                            FirstSigma[col_i] = ZERO;
+                            SecondSigma[col_j] = ZERO;
+
+                            delete[] GammaGrad;
+                            delete[] PiGrad;
+                        }
+                    }
+                    MatrixAndVectorOperations::MultVectorByNumberInPlace(N_h, LocalResult, Sum);
+                    MatrixAndVectorOperations::VectorsSub(N_h, Result, LocalResult, Result);
+                    break;
+                case 'd':
+                    for (int i = UbMatrices[b].rowPtr[i_n]; i < UbMatrices[b].rowPtr[i_n + 1]; i++) {
+                        for (int j = UbMatrices[b].rowPtr[i_n]; j < UbMatrices[b].rowPtr[i_n + 1]; j++) {
+                            int col_i = UbMatrices[b].colIndex[i];
+                            int col_j = UbMatrices[b].colIndex[j];
+                            TComplex CSR_val_i((acc_number)UbMatrices[b].val[i].real(), (acc_number)-UbMatrices[b].val[i].imag());
+                            TComplex CSR_val_j((acc_number)UbMatrices[b].val[j].real(), (acc_number)UbMatrices[b].val[j].imag());
+                            FirstSigma[col_i] = ONE;
+                            SecondSigma[col_j] = ONE;
+
+                            TComplex* PiGrad = GetPiGrad(N, FirstSigma, SecondSigma, 'L', 'd');
+                            acc_number* GammaGrad = GetGammaGrad(N, FirstSigma, SecondSigma, 'L', 'd');
+                            for (int ind = 0; ind < size; ind++) {
+                                PiGrad[ind] += TComplex(GammaGrad[i], ZERO);
+                            }
+
+                            TComplex coef = CSR_val_i * CSR_val_j * (TComplex)Ro[col_j + col_i * N];
+                            MatrixAndVectorOperations::MultVectorByNumberInPlace(N_a, PiGrad, coef);
+                            MatrixAndVectorOperations::VectorsAdd(N_a, LocalResult, PiGrad, LocalResult);
+
+                            FirstSigma[col_i] = ZERO;
+                            SecondSigma[col_j] = ZERO;
+
+                            delete[] GammaGrad;
+                            delete[] PiGrad;
+                        }
+                    }
+                    MatrixAndVectorOperations::MultVectorByNumberInPlace(N_a, LocalResult, Sum);
+                    MatrixAndVectorOperations::VectorsSub(N_a, Result, LocalResult, Result);
+                    break;
+                default:
+                    break;
+                }
+            }
+            else if (LambdaOrMu == 'M') {
+                switch (Variable) {
+                case 'W':
+                    for (int i = UbMatrices[b].rowPtr[i_n]; i < UbMatrices[b].rowPtr[i_n + 1]; i++) {
+                        for (int j = UbMatrices[b].rowPtr[i_n]; j < UbMatrices[b].rowPtr[i_n + 1]; j++) {
+                            int col_i = UbMatrices[b].colIndex[i];
+                            int col_j = UbMatrices[b].colIndex[j];
+                            TComplex CSR_val_i((acc_number)UbMatrices[b].val[i].real(), (acc_number)-UbMatrices[b].val[i].imag());
+                            TComplex CSR_val_j((acc_number)UbMatrices[b].val[j].real(), (acc_number)UbMatrices[b].val[j].imag());
+                            FirstSigma[col_i] = ONE;
+                            SecondSigma[col_j] = ONE;
+
+                            TComplex* PiGrad = GetPiGrad(N, FirstSigma, SecondSigma, 'M', 'W');
+                            acc_number* GammaGrad = GetGammaGrad(N, FirstSigma, SecondSigma, 'M', 'W');
+                            for (int ind = 0; ind < size; ind++) {
+                                PiGrad[ind] += TComplex(ZERO, GammaGrad[i]);
+                            }
+
+                            TComplex coef = CSR_val_i * CSR_val_j * (TComplex)Ro[col_j + col_i * N];
+                            MatrixAndVectorOperations::MultMatrixByNumberInPlace(N_h, N_v, PiGrad, coef);
+                            MatrixAndVectorOperations::MatrixAdd(N_h, N_v, LocalResult, PiGrad, LocalResult);
+
+                            FirstSigma[col_i] = ZERO;
+                            SecondSigma[col_j] = ZERO;
+
+                            delete[] GammaGrad;
+                            delete[] PiGrad;
+                        }
+                    }
+                    MatrixAndVectorOperations::MultMatrixByNumberInPlace(N_h, N_v, LocalResult, Sum);
+                    MatrixAndVectorOperations::MatrixSub(N_h, N_v, Result, LocalResult, Result);
+                    break;
+                case 'V':
+                    for (int i = UbMatrices[b].rowPtr[i_n]; i < UbMatrices[b].rowPtr[i_n + 1]; i++) {
+                        for (int j = UbMatrices[b].rowPtr[i_n]; j < UbMatrices[b].rowPtr[i_n + 1]; j++) {
+                            int col_i = UbMatrices[b].colIndex[i];
+                            int col_j = UbMatrices[b].colIndex[j];
+                            TComplex CSR_val_i((acc_number)UbMatrices[b].val[i].real(), (acc_number)-UbMatrices[b].val[i].imag());
+                            TComplex CSR_val_j((acc_number)UbMatrices[b].val[j].real(), (acc_number)UbMatrices[b].val[j].imag());
+                            FirstSigma[col_i] = ONE;
+                            SecondSigma[col_j] = ONE;
+
+                            TComplex* PiGrad = GetPiGrad(N, FirstSigma, SecondSigma, 'M', 'V');
+                            acc_number* GammaGrad = GetGammaGrad(N, FirstSigma, SecondSigma, 'M', 'V');
+                            for (int ind = 0; ind < size; ind++) {
+                                PiGrad[ind] += TComplex(ZERO, GammaGrad[i]);
+                            }
+
+                            TComplex coef = CSR_val_i * CSR_val_j * (TComplex)Ro[col_j + col_i * N];
+                            MatrixAndVectorOperations::MultMatrixByNumberInPlace(N_a, N_v, PiGrad, coef);
+                            MatrixAndVectorOperations::MatrixAdd(N_a, N_v, LocalResult, PiGrad, LocalResult);
+
+                            FirstSigma[col_i] = ZERO;
+                            SecondSigma[col_j] = ZERO;
+
+                            delete[] GammaGrad;
+                            delete[] PiGrad;
+                        }
+                    }
+                    MatrixAndVectorOperations::MultMatrixByNumberInPlace(N_a, N_v, LocalResult, Sum);
+                    MatrixAndVectorOperations::MatrixSub(N_a, N_v, Result, LocalResult, Result);
+                    break;
+                case 'b':
+                    for (int i = UbMatrices[b].rowPtr[i_n]; i < UbMatrices[b].rowPtr[i_n + 1]; i++) {
+                        for (int j = UbMatrices[b].rowPtr[i_n]; j < UbMatrices[b].rowPtr[i_n + 1]; j++) {
+                            int col_i = UbMatrices[b].colIndex[i];
+                            int col_j = UbMatrices[b].colIndex[j];
+                            TComplex CSR_val_i((acc_number)UbMatrices[b].val[i].real(), (acc_number)-UbMatrices[b].val[i].imag());
+                            TComplex CSR_val_j((acc_number)UbMatrices[b].val[j].real(), (acc_number)UbMatrices[b].val[j].imag());
+                            FirstSigma[col_i] = ONE;
+                            SecondSigma[col_j] = ONE;
+
+                            TComplex* PiGrad = GetPiGrad(N, FirstSigma, SecondSigma, 'M', 'b');
+                            acc_number* GammaGrad = GetGammaGrad(N, FirstSigma, SecondSigma, 'M', 'b');
+                            for (int ind = 0; ind < size; ind++) {
+                                PiGrad[ind] += TComplex(ZERO, GammaGrad[i]);
+                            }
+
+                            TComplex coef = CSR_val_i * CSR_val_j * (TComplex)Ro[col_j + col_i * N];
+                            MatrixAndVectorOperations::MultVectorByNumberInPlace(N_v, PiGrad, coef);
+                            MatrixAndVectorOperations::VectorsAdd(N_v, LocalResult, PiGrad, LocalResult);
+
+                            FirstSigma[col_i] = ZERO;
+                            SecondSigma[col_j] = ZERO;
+
+                            delete[] GammaGrad;
+                            delete[] PiGrad;
+                        }
+                    }
+                    MatrixAndVectorOperations::MultVectorByNumberInPlace(N_v, LocalResult, Sum);
+                    MatrixAndVectorOperations::VectorsSub(N_v, Result, LocalResult, Result);
+                    break;
+                case 'c':
+                    for (int i = UbMatrices[b].rowPtr[i_n]; i < UbMatrices[b].rowPtr[i_n + 1]; i++) {
+                        for (int j = UbMatrices[b].rowPtr[i_n]; j < UbMatrices[b].rowPtr[i_n + 1]; j++) {
+                            int col_i = UbMatrices[b].colIndex[i];
+                            int col_j = UbMatrices[b].colIndex[j];
+                            TComplex CSR_val_i((acc_number)UbMatrices[b].val[i].real(), (acc_number)-UbMatrices[b].val[i].imag());
+                            TComplex CSR_val_j((acc_number)UbMatrices[b].val[j].real(), (acc_number)UbMatrices[b].val[j].imag());
+                            FirstSigma[col_i] = ONE;
+                            SecondSigma[col_j] = ONE;
+
+                            TComplex* PiGrad = GetPiGrad(N, FirstSigma, SecondSigma, 'M', 'c');
+                            acc_number* GammaGrad = GetGammaGrad(N, FirstSigma, SecondSigma, 'M', 'c');
+                            for (int ind = 0; ind < size; ind++) {
+                                PiGrad[ind] += TComplex(ZERO, GammaGrad[i]);
+                            }
+
+                            TComplex coef = CSR_val_i * CSR_val_j * (TComplex)Ro[col_j + col_i * N];
+                            MatrixAndVectorOperations::MultVectorByNumberInPlace(N_h, PiGrad, coef);
+                            MatrixAndVectorOperations::VectorsAdd(N_h, LocalResult, PiGrad, LocalResult);
+
+                            FirstSigma[col_i] = ZERO;
+                            SecondSigma[col_j] = ZERO;
+
+                            delete[] GammaGrad;
+                            delete[] PiGrad;
+                        }
+                    }
+                    MatrixAndVectorOperations::MultVectorByNumberInPlace(N_h, LocalResult, Sum);
+                    MatrixAndVectorOperations::VectorsSub(N_h, Result, LocalResult, Result);
+                    break;
+                case 'd':
+                    for (int i = UbMatrices[b].rowPtr[i_n]; i < UbMatrices[b].rowPtr[i_n + 1]; i++) {
+                        for (int j = UbMatrices[b].rowPtr[i_n]; j < UbMatrices[b].rowPtr[i_n + 1]; j++) {
+                            int col_i = UbMatrices[b].colIndex[i];
+                            int col_j = UbMatrices[b].colIndex[j];
+                            TComplex CSR_val_i((acc_number)UbMatrices[b].val[i].real(), (acc_number)-UbMatrices[b].val[i].imag());
+                            TComplex CSR_val_j((acc_number)UbMatrices[b].val[j].real(), (acc_number)UbMatrices[b].val[j].imag());
+                            FirstSigma[col_i] = ONE;
+                            SecondSigma[col_j] = ONE;
+
+                            TComplex* PiGrad = GetPiGrad(N, FirstSigma, SecondSigma, 'M', 'd');
+                            acc_number* GammaGrad = GetGammaGrad(N, FirstSigma, SecondSigma, 'M', 'd');
+                            for (int ind = 0; ind < size; ind++) {
+                                PiGrad[ind] += TComplex(ZERO, GammaGrad[i]);
+                            }
+
+                            TComplex coef = CSR_val_i * CSR_val_j * (TComplex)Ro[col_j + col_i * N];
+                            MatrixAndVectorOperations::MultVectorByNumberInPlace(N_a, PiGrad, coef);
+                            MatrixAndVectorOperations::VectorsAdd(N_a, LocalResult, PiGrad, LocalResult);
+
+                            FirstSigma[col_i] = ZERO;
+                            SecondSigma[col_j] = ZERO;
+
+                            delete[] GammaGrad;
+                            delete[] PiGrad;
+                        }
+                    }
+                    MatrixAndVectorOperations::MultVectorByNumberInPlace(N_a, LocalResult, Sum);
+                    MatrixAndVectorOperations::VectorsSub(N_a, Result, LocalResult, Result);
+                    break;
+                default:
+                    break;
+                }
+            }
+
+            delete[] FirstSigma;
+            delete[] SecondSigma;
+            delete[] LocalResult;
+        }
+    }
+
+    return Result;
+}
+
 TComplex NeuralDensityOperators::GetGradLambdaMu(int N, MKL_Complex16* OriginalRo, MKL_Complex16* Ro, int NumberOfBases, CRSMatrix* UbMatrices, int ind_i, int ind_j,
     char LambdaOrMu, char Variable) {
 
@@ -838,6 +1333,49 @@ TComplex NeuralDensityOperators::GetGradLambdaMu(int N, MKL_Complex16* OriginalR
 
     if (LambdaOrMu == 'L') {
         Result += WeightSumRo(N, Ro, ind_i, ind_j, Variable);
+    }
+
+    return Result;
+}
+
+TComplex* NeuralDensityOperators::GetGradLambdaMu(int N, MKL_Complex16* OriginalRo, MKL_Complex16* Ro, int NumberOfBases, CRSMatrix* UbMatrices, 
+    char LambdaOrMu, char Variable) {
+
+    TComplex* Result = WeightSumLambdaMu(N, OriginalRo, Ro, NumberOfBases, UbMatrices, LambdaOrMu, Variable);
+
+    if (LambdaOrMu == 'L') {
+        int N_h = FirstModifiedRBM.N_h;
+        int N_v = FirstModifiedRBM.N_v;
+        int N_a = FirstModifiedRBM.N_a;
+
+        int size = 0;
+        switch (Variable) {
+        case 'W':
+            size = N_h * N_v;
+            break;
+        case 'V':
+            size = N_a * N_v;
+            break;
+        case 'b':
+            size = N_v;
+            break;
+        case 'c':
+            size = N_h;
+            break;
+        case 'd':
+            size = N_a;
+            break;
+        default:
+            break;
+        }
+
+        acc_number* LocalResult = WeightSumRo(N, Ro, Variable);
+
+        for (int ind = 0; ind < size; ind++) {
+            Result[ind] += TComplex(LocalResult[ind], ZERO);
+        }
+
+        delete[] LocalResult;
     }
 
     return Result;
@@ -912,4 +1450,79 @@ void NeuralDensityOperators::WeightUpdate(int N, MKL_Complex16* OriginalRo, MKL_
         TComplex grad = GetGradLambdaMu(N, OriginalRo, Ro, NumberOfBases, UbMatrices, i, 0, 'M', 'c');
         SecondModifiedRBM.c[i] -= lr * grad.imag();
     }
+}
+
+void NeuralDensityOperators::WeightUpdateFast(int N, MKL_Complex16* OriginalRo, MKL_Complex16* Ro, int NumberOfBases, CRSMatrix* UbMatrices, acc_number lr) {
+    int N_v = FirstModifiedRBM.N_v;
+    int N_h = FirstModifiedRBM.N_h;
+    int N_a = FirstModifiedRBM.N_a;
+
+    TComplex* W_1 = GetGradLambdaMu(N, OriginalRo, Ro, NumberOfBases, UbMatrices, 'L', 'W');
+    for (int i = 0; i < N_h; i++) {
+        for (int j = 0; j < N_v; j++) {
+            FirstModifiedRBM.W[j + i * N_v] -= lr * W_1[j + i * N_v].real();
+        }
+    }
+    
+    TComplex* V_1 = GetGradLambdaMu(N, OriginalRo, Ro, NumberOfBases, UbMatrices, 'L', 'V');
+    for (int i = 0; i < N_a; i++) {
+        for (int j = 0; j < N_v; j++) {
+            FirstModifiedRBM.V[j + i * N_v] -= lr * V_1[j + i * N_v].real();
+        }
+    }
+
+    TComplex* b_1 = GetGradLambdaMu(N, OriginalRo, Ro, NumberOfBases, UbMatrices, 'L', 'b');
+    for (int i = 0; i < N_v; i++) {
+        FirstModifiedRBM.b[i] -= lr * b_1[i].real();
+    }
+
+    TComplex* c_1 = GetGradLambdaMu(N, OriginalRo, Ro, NumberOfBases, UbMatrices, 'L', 'c');
+    for (int i = 0; i < N_h; i++) {
+        FirstModifiedRBM.c[i] -= lr * c_1[i].real();
+    }
+
+    TComplex* d_1 = GetGradLambdaMu(N, OriginalRo, Ro, NumberOfBases, UbMatrices, 'L', 'd');
+    for (int i = 0; i < N_a; i++) {
+        FirstModifiedRBM.d[i] -= lr * d_1[i].real();
+    }
+
+    TComplex* W_2 = GetGradLambdaMu(N, OriginalRo, Ro, NumberOfBases, UbMatrices, 'M', 'W');
+    for (int i = 0; i < N_h; i++) {
+        for (int j = 0; j < N_v; j++) {
+            SecondModifiedRBM.W[j + i * N_v] -= lr * W_2[j + i * N_v].real();
+        }
+    }
+
+    TComplex* V_2 = GetGradLambdaMu(N, OriginalRo, Ro, NumberOfBases, UbMatrices, 'M', 'V');
+    for (int i = 0; i < N_a; i++) {
+        for (int j = 0; j < N_v; j++) {
+            SecondModifiedRBM.V[j + i * N_v] -= lr * V_2[j + i * N_v].real();
+        }
+    }
+
+    TComplex* b_2 = GetGradLambdaMu(N, OriginalRo, Ro, NumberOfBases, UbMatrices, 'M', 'b');
+    for (int i = 0; i < N_v; i++) {
+        SecondModifiedRBM.b[i] -= lr * b_2[i].real();
+    }
+
+    TComplex* c_2 = GetGradLambdaMu(N, OriginalRo, Ro, NumberOfBases, UbMatrices, 'M', 'c');
+    for (int i = 0; i < N_h; i++) {
+        SecondModifiedRBM.c[i] -= lr * c_2[i].real();
+    }
+
+    TComplex* d_2 = GetGradLambdaMu(N, OriginalRo, Ro, NumberOfBases, UbMatrices, 'M', 'd');
+    for (int i = 0; i < N_a; i++) {
+        SecondModifiedRBM.d[i] -= lr * d_2[i].real();
+    }
+
+    delete[]W_1;
+    delete[]W_2;
+    delete[]V_1;
+    delete[]V_2;
+    delete[]b_1;
+    delete[]b_2;
+    delete[]c_1;
+    delete[]c_2;
+    delete[]d_1;
+    delete[]d_2;
 }

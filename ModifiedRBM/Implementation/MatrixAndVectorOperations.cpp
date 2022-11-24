@@ -12,6 +12,18 @@ void MatrixAndVectorOperations::VectorsSub(int N, acc_number* FirstVec, acc_numb
     }
 }
 
+void MatrixAndVectorOperations::VectorsAdd(int N, TComplex* FirstVec, TComplex* SecondVec, TComplex* Result) {
+    for (int i = 0; i < N; i++) {
+        Result[i] = FirstVec[i] + SecondVec[i];
+    }
+}
+
+void MatrixAndVectorOperations::VectorsSub(int N, TComplex* FirstVec, TComplex* SecondVec, TComplex* Result) {
+    for (int i = 0; i < N; i++) {
+        Result[i] = FirstVec[i] - SecondVec[i];
+    }
+}
+
 acc_number MatrixAndVectorOperations::ScalarVectorMult(int N, acc_number* FirstVec, acc_number* SecondVec) {
     acc_number Answer = (acc_number)0.0;
 
@@ -34,7 +46,21 @@ void MatrixAndVectorOperations::MultVectorByNumberInPlace(int N, acc_number* Vec
     }
 }
 
+void MatrixAndVectorOperations::MultVectorByNumberInPlace(int N, TComplex* Vec, TComplex Number) {
+    for (int i = 0; i < N; i++) {
+        Vec[i] *= Number;
+    }
+}
+
 void MatrixAndVectorOperations::MultMatrixByNumberInPlace(int N, int M, acc_number* Matrix, acc_number Number) {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            Matrix[j + i * M] *= Number;
+        }
+    }
+}
+
+void MatrixAndVectorOperations::MultMatrixByNumberInPlace(int N, int M, TComplex* Matrix, TComplex Number) {
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < M; j++) {
             Matrix[j + i * M] *= Number;
@@ -51,6 +77,22 @@ void MatrixAndVectorOperations::MatrixAdd(int N, int M, acc_number* FirstMatrix,
 }
 
 void MatrixAndVectorOperations::MatrixSub(int N, int M, acc_number* FirstMatrix, acc_number* SecondMatrix, acc_number* Result) {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            Result[j + i * M] = FirstMatrix[j + i * M] - SecondMatrix[j + i * M];
+        }
+    }
+}
+
+void MatrixAndVectorOperations::MatrixAdd(int N, int M, TComplex* FirstMatrix, TComplex* SecondMatrix, TComplex* Result) {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            Result[j + i * M] = FirstMatrix[j + i * M] + SecondMatrix[j + i * M];
+        }
+    }
+}
+
+void MatrixAndVectorOperations::MatrixSub(int N, int M, TComplex* FirstMatrix, TComplex* SecondMatrix, TComplex* Result) {
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < M; j++) {
             Result[j + i * M] = FirstMatrix[j + i * M] - SecondMatrix[j + i * M];
