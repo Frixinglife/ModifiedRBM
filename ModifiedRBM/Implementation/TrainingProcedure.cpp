@@ -78,7 +78,7 @@ void TrainingProcedure(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMat
             //fout.close();
         }
 
-        RBM.WeightUpdateFast(N, OriginalRoMatrix, RoMatrix, NumberOfBases, UbMatrices, lr);
+        RBM.WeightMatricesUpdate(N, OriginalRoMatrix, RoMatrix, NumberOfBases, UbMatrices, lr);
 
         delete[]RoMatrix;
     }

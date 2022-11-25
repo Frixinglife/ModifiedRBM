@@ -49,7 +49,7 @@ public:
     TComplex* GetGradLambdaMu(int N, MKL_Complex16* OriginalRo, MKL_Complex16* Ro, int NumberOfBases, 
         CRSMatrix* UbMatrices, char LambdaOrMu, char Variable);
 
-    void WeightUpdateFast(int N, MKL_Complex16* OriginalRo, MKL_Complex16* Ro, int NumberOfBases, CRSMatrix* UbMatrices, acc_number lr);
+    void WeightMatricesUpdate(int N, MKL_Complex16* OriginalRo, MKL_Complex16* Ro, int NumberOfBases, CRSMatrix* UbMatrices, acc_number lr);
 };
 
 #endif //_NEURAL_DENSITY_OPERATORS_H_
