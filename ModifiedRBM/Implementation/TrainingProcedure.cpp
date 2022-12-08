@@ -42,14 +42,16 @@ double MaxEigDiffMarix(int N, MKL_Complex16* OriginalRoMatrix, MKL_Complex16* Ro
     return MaxLambda;
 }
 
-double KullbachLeiblerNorm(int N, MKL_Complex16* OriginalRoMatrix, MKL_Complex16* RoMatrixRBM, int NumberOfBases) {
+double KullbachLeiblerNorm(int N, MKL_Complex16** OriginalRoMatrices, MKL_Complex16* RoMatrixRBM, int NumberOfBases) {
     double result = 0.0;
     for (int b = 0; b < NumberOfBases; b++) {
         for (int i = 0; i < N; i++) {
-            double OrigRo_elem = OriginalRoMatrix[i + i * N].real();
+            double OrigRo_elem = OriginalRoMatrices[b][i + i * N].real();
+            //std::cout << OrigRo_elem << " ";
             double RoRBM_elem = RoMatrixRBM[i + i * N].real();
             result += OrigRo_elem * std::log(OrigRo_elem / RoRBM_elem);
         }
+        //std::cout << "\n";
     }
     return result;
 }
@@ -62,7 +64,7 @@ void TrainingProcedure(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMat
 
     CRSMatrix* UbMatrices = new CRSMatrix[NumberOfBases];
 
-    //MKL_Complex16** OriginalRoMatrices = new MKL_Complex16* [NumberOfBases];
+    MKL_Complex16** OriginalRoMatrices = new MKL_Complex16*[NumberOfBases];
 
     //std::ofstream fout_diag_norm("..\\Results\\diag_norm_" + std::string(TYPE_OUT) + ".txt", std::ios_base::out | std::ios_base::trunc);
     //std::ofstream fout_eig_norm("..\\Results\\eig_norm_" + std::string(TYPE_OUT) + ".txt", std::ios_base::out | std::ios_base::trunc);
@@ -73,7 +75,9 @@ void TrainingProcedure(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMat
     for (int b = 0; b < NumberOfBases; b++) {
         TransitionMatrix TM(42);
         UbMatrices[b] = TM.GetCRSTransitionMatrix(N, NumberOfUnitary, b);
-        //OriginalRoMatrices[b] = TransitionMatrix::GetNewRoMatrix(OriginalRoMatrix, UbMatrices[b], N);
+        //UbMatrices[b].PrintCRS("U_b");
+        OriginalRoMatrices[b] = TransitionMatrix::GetNewRoMatrix(OriginalRoMatrix, UbMatrices[b], N);
+        //TransitionMatrix::PrintMatrix(OriginalRoMatrices[b], N, N, "OrigRoB");
         //fout_diag_norms[b] = std::ofstream("..\\Results\\diag_norm_" + std::string(TYPE_OUT) + "_" + std::to_string(b) + ".txt", std::ios_base::out | std::ios_base::trunc);
         //fout_eig_norms[b] = std::ofstream("..\\Results\\eig_norm_" + std::string(TYPE_OUT) + "_" + std::to_string(b) + ".txt", std::ios_base::out | std::ios_base::trunc);
     }
@@ -82,13 +86,21 @@ void TrainingProcedure(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMat
 
     auto start = std::chrono::high_resolution_clock::now();
 
+    //for (int i = 0; i < RBM.FirstModifiedRBM.N_h; i++) {
+    //    for (int j = 0; j < RBM.FirstModifiedRBM.N_v; j++) {
+    //        std::cout << RBM.FirstModifiedRBM.W[j + i * RBM.FirstModifiedRBM.N_v] << " ";
+    //    }
+    //    std::cout << "\n";
+    //}
+    //std::cout << "\n";
+
     for (int l = 1; l <= epochs; l++) {
         MKL_Complex16* RoMatrix = RBM.GetRoMatrix();
 
         std::cout << l << " / " << epochs << " \n";
 
         if (l % freq == 0 || l == 1) {
-            fout_kullbach_leibler_norm << KullbachLeiblerNorm(N, OriginalRoMatrix, RoMatrix, NumberOfBases) << "\n";
+            fout_kullbach_leibler_norm << KullbachLeiblerNorm(N, OriginalRoMatrices, RoMatrix, NumberOfBases) << "\n";
             //fout_diag_norm << NormMatrixDiag(N, OriginalRoMatrix, RoMatrix) << "\n";
             //fout_eig_norm << MaxEigDiffMarix(N, OriginalRoMatrix, RoMatrix) << "\n";
 
@@ -107,10 +119,17 @@ void TrainingProcedure(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMat
             //fout.close();
         }
 
-        RBM.WeightMatricesUpdate(N, OriginalRoMatrix, RoMatrix, NumberOfBases, UbMatrices, lr);
-
+        RBM.WeightMatricesUpdate(N, OriginalRoMatrices, RoMatrix, NumberOfBases, UbMatrices, lr);
         delete[]RoMatrix;
     }
+
+    //for (int i = 0; i < RBM.FirstModifiedRBM.N_h; i++) {
+    //    for (int j = 0; j < RBM.FirstModifiedRBM.N_v; j++) {
+    //        std::cout << RBM.FirstModifiedRBM.W[j + i * RBM.FirstModifiedRBM.N_v] << " ";
+    //    }
+    //    std::cout << "\n";
+    //}
+    //std::cout << "\n";
 
     auto diff = std::chrono::high_resolution_clock::now() - start;
 

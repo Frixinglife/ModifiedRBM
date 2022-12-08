@@ -36,6 +36,6 @@ plt.title('Размер матрицы плотности N = ' + str(N) + ', ч
 plt.plot(epochs, kullbach_leibler_norm_float, 'g--')
 plt.grid(True, linestyle='-', color='0.75')
 plt.xlabel("Номер эпохи, i")
-plt.ylabel(r"$ \sum_{b} \sum_{i=1}^{n-1} \rho_{Original}(i,i) \cdot \log \frac{\rho_{Original}(i,i)}{\rho_{RBM}(i,i)} $")
+plt.ylabel(r"$ \sum_{b} \sum_{i=1}^{n-1} \rho^b_{Original}(i,i) \cdot \log \frac{\rho^b_{Original}(i,i)}{\rho_{RBM}(i,i)} $")
  
 plt.show()
