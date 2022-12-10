@@ -52,7 +52,7 @@ for i in range(NumberOfBases):
             part_data_diag_norms_basis_f.append(float(line))
         data_diag_norms_basis_f.append(part_data_diag_norms_basis_f)
     with open("eig_norm_float_" + str(i) + ".txt") as f:
-        part_data_eig_norms_basis_f= []
+        part_data_eig_norms_basis_f = []
         for line in f:
             part_data_eig_norms_basis_f.append(float(line))
         data_eig_norms_basis_f.append(part_data_eig_norms_basis_f)
