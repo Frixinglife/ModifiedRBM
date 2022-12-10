@@ -72,18 +72,18 @@ labels = ["float"]
 fig.suptitle('Размер матрицы плотности N = ' + str(N) + ', время обучения float - ' + str(float_time) + ' с', fontweight = 'bold')
 
 # ax1.plot(epochs, data_diag_norm_f, 'g--', epochs, data_diag_norm_d, 'r^')
-ax1.plot(epochs, data_diag_norm_f, 'g--', label = 'Не в базисах')
 for i in range(NumberOfBases):
     ax1.plot(epochs, data_diag_norms_basis_f[i], color = colors[i], label = 'Базис ' + str(i + 1))
+ax1.plot(epochs, data_diag_norm_f, 'g--', label = 'Не в базисах')
 ax1.grid(True, linestyle='-', color='0.75')
 ax1.set_xlabel("Номер эпохи, i")
 ax1.set_ylabel(r"$|| diag(\rho_{RBM}^{i}) - diag(\rho_{Original}) || _{2}$")
 ax1.legend()
 
 # ax2.plot(epochs, data_eig_norm_f, 'g--', epochs, data_eig_norm_d, 'r^')
-ax2.plot(epochs, data_eig_norm_f, 'g--', label = 'Не в базисах')
 for i in range(NumberOfBases):
     ax2.plot(epochs, data_eig_norms_basis_f[i], color = colors[i], label = 'Базис ' + str(i + 1))
+ax2.plot(epochs, data_eig_norm_f, 'g--', label = 'Не в базисах')
 ax2.grid(True, linestyle='-', color='0.75')
 ax2.set_xlabel("Номер эпохи, i")
 ax2.set_ylabel(r"$\max_{|\lambda|}(\rho_{RBM}^{i} - \rho_{Original})$")

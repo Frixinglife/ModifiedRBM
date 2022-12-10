@@ -25,18 +25,21 @@ public:
     void Sigmoid(acc_number* arg, int N);
     void Sigmoid(TComplex* arg, int N);
 
-    acc_number* GetGammaGrad(int N, acc_number* FirstSigma, acc_number* SecondSigma,
-        char LambdaOrMu, char Variable);
-    TComplex* GetPiGrad(int N, acc_number* FirstSigma, acc_number* SecondSigma,
-        char LambdaOrMu, char Variable);
+    acc_number* GetGammaGrad(int N, acc_number* FirstSigma, acc_number* SecondSigma, char LambdaOrMu, char Variable);
+    TComplex* GetPiGrad(int N, acc_number* FirstSigma, acc_number* SecondSigma, char LambdaOrMu, char Variable);
     acc_number* GetLogRoGrad(int N, acc_number* Sigma, char Variable);
     acc_number* WeightSumRo(int N, MKL_Complex16* Ro, char Variable);
+
     TComplex* WeightSumLambdaMu(int N, MKL_Complex16** OriginalRo, MKL_Complex16* Ro, int NumberOfBases, 
         CRSMatrix* UbMatrices, char LambdaOrMu, char Variable);
     TComplex* GetGradLambdaMu(int N, MKL_Complex16** OriginalRo, MKL_Complex16* Ro, int NumberOfBases, 
         CRSMatrix* UbMatrices, char LambdaOrMu, char Variable);
+    void WeightMatricesUpdate(int N, MKL_Complex16** OriginalRo, MKL_Complex16* Ro, int NumberOfBases, 
+        CRSMatrix* UbMatrices, acc_number lr);
 
-    void WeightMatricesUpdate(int N, MKL_Complex16** OriginalRo, MKL_Complex16* Ro, int NumberOfBases, CRSMatrix* UbMatrices, acc_number lr);
+    TComplex* WeightSumLambdaMu(int N, MKL_Complex16* OriginalRo, MKL_Complex16* Ro, CRSMatrix* UbMatrix, char LambdaOrMu, char Variable);
+    TComplex* GetGradLambdaMu(int N, MKL_Complex16* OriginalRo, MKL_Complex16* Ro, CRSMatrix* UbMatrix, char LambdaOrMu, char Variable);
+    void WeightMatricesUpdate(int N, MKL_Complex16* OriginalRo, MKL_Complex16* Ro, CRSMatrix* UbMatrix, acc_number lr);
 };
 
 #endif //_NEURAL_DENSITY_OPERATORS_H_
