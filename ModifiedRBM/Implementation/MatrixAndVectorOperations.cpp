@@ -134,11 +134,17 @@ void MatrixAndVectorOperations::FindEigMatrix(int N, MKL_Complex16* Matrix, MKL_
     const int N_N = N * N;
     const int N_2 = 2 * N;
 
+    MKL_Complex16* A = new MKL_Complex16[N_N];
     MKL_Complex16* W = new MKL_Complex16[N];
     MKL_Complex16* VL = new MKL_Complex16[N_N];
     MKL_Complex16* VR = new MKL_Complex16[N_N];
     MKL_Complex16* Work = new MKL_Complex16[N_2];
     double* rwork = new double[N_2];
+
+    for (int i = 0; i < N_N; i++) {
+        A[i] = Matrix[i];
+    }
+    // Otherwise Matrix will be overwritten
 
     const int lda = N;
     const int ldvl = N;
@@ -146,12 +152,13 @@ void MatrixAndVectorOperations::FindEigMatrix(int N, MKL_Complex16* Matrix, MKL_
     const int lwork = 2 * N;
     int info;
 
-    zgeev(&jobvl, &jobvr, &N, Matrix, &lda, W, VL, &ldvl, VR, &ldvr, Work, &lwork, rwork, &info);
+    zgeev(&jobvl, &jobvr, &N, A, &lda, W, VL, &ldvl, VR, &ldvr, Work, &lwork, rwork, &info);
 
     for (int i = 0; i < N; i++) {
         Result[i] = W[i];
     }
 
+    delete[]A;
     delete[]W;
     delete[]VL;
     delete[]VR;
