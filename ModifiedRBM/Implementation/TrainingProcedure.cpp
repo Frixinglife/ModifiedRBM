@@ -145,6 +145,8 @@ void TrainingProcedure(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMat
     std::cout << "Data type: " << TYPE_OUT << "\n";
     std::cout << "Time: " << work_time << " s\n";
 
+    delete[]fout_diag_norms;
+    delete[]fout_eig_norms;
     delete[]UbMatrices;
 }
 
@@ -257,5 +259,8 @@ void TrainingProcedureSeparatelyForBases(NeuralDensityOperators& RBM, MKL_Comple
     std::cout << "Data type: " << TYPE_OUT << "\n";
     std::cout << "Time: " << work_time << " s\n";
 
+    delete[]fout_kullbach_leibler_norms;
+    delete[]fout_diag_norms;
+    delete[]fout_eig_norms;
     delete[]UbMatrices;
 }

@@ -1,4 +1,5 @@
 #include "MatrixAndVectorOperations.h"
+#include <cmath>
 
 void MatrixAndVectorOperations::VectorsAdd(int N, acc_number* FirstVec, acc_number* SecondVec, acc_number* Result) {
     for (int i = 0; i < N; i++) {
@@ -144,7 +145,6 @@ void MatrixAndVectorOperations::FindEigMatrix(int N, MKL_Complex16* Matrix, MKL_
     for (int i = 0; i < N_N; i++) {
         A[i] = Matrix[i];
     }
-    // Otherwise Matrix will be overwritten
 
     const int lda = N;
     const int ldvl = N;
@@ -164,4 +164,81 @@ void MatrixAndVectorOperations::FindEigMatrix(int N, MKL_Complex16* Matrix, MKL_
     delete[]VR;
     delete[]Work;
     delete[]rwork;
+}
+
+void MatrixAndVectorOperations::SqrtMatrix(int N, MKL_Complex16* Matrix, MKL_Complex16* Result) {
+    const char jobvl = 'N';
+    const char jobvr = 'V';
+    const int N_N = N * N;
+    const int N_2 = 2 * N;
+    const int lda = N;
+    const int ldvl = N;
+    const int ldvr = N;
+    const int lwork = 2 * N;
+    int info;
+
+    MKL_Complex16* J = new MKL_Complex16[N_N];
+    MKL_Complex16* W = new MKL_Complex16[N];
+    MKL_Complex16* VL = new MKL_Complex16[N_N];
+    MKL_Complex16* VR = new MKL_Complex16[N_N];
+    MKL_Complex16* VR_T = new MKL_Complex16[N_N];
+    MKL_Complex16* Work = new MKL_Complex16[N_2];
+    MKL_Complex16* Intermed = new MKL_Complex16[N_N];
+    double* rwork = new double[N_2];
+
+    for (int i = 0; i < N_N; i++) {
+        J[i] = Matrix[i];
+    }
+
+    zgeev(&jobvl, &jobvr, &N, J, &lda, W, VL, &ldvl, VR, &ldvr, Work, &lwork, rwork, &info);
+
+    for (int i = 0; i < N; i++) {
+        double real = J[i + i * N].real();
+        double imag = J[i + i * N].imag();
+        double sqrt_real = 0.0;
+        if (std::abs(real) >= 1e-10) {
+            sqrt_real = std::sqrt(real);
+        }
+        J[i + i * N] = MKL_Complex16(sqrt_real, imag);
+    }
+
+    for (int i = 0; i < N; i++) {
+        for (int j = i; j < N; j++) {
+            MKL_Complex16 Temp = MKL_Complex16(VR[j + i * N].real(), -VR[j + i * N].imag());
+            VR[j + i * N] = MKL_Complex16(VR[i + j * N].real(), -VR[i + j * N].imag());
+            VR[i + j * N] = Temp;
+        }
+    }
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            VR_T[j + i * N] = MKL_Complex16(VR[i + j * N].real(), -VR[i + j * N].imag());
+        }
+    }
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            Intermed[j + i * N] = MKL_Complex16(0.0, 0.0);
+            for (int k = 0; k < N; k++) {
+                Intermed[j + i * N] += VR[k + i * N] * J[j + k * N];
+            }
+        }
+    }
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            Result[j + i * N] = MKL_Complex16(0.0, 0.0);
+            for (int k = 0; k < N; k++) {
+                Result[j + i * N] += Intermed[k + i * N] * VR_T[j + k * N];
+            }
+        }
+    }
+
+    delete[]J;
+    delete[]W;
+    delete[]VL;
+    delete[]VR;
+    delete[]Work;
+    delete[]rwork;
+    delete[]Intermed;
 }

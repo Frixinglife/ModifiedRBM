@@ -218,7 +218,6 @@ CRSMatrix TransitionMatrix::GetCRSTransitionMatrix(int N, int NumberOfUnitary, i
 	return CRSMatrix(N, GetTransitionMatrix(N, NumberOfUnitary, IndexUnitary, show));
 }
 
-
 MKL_Complex16* TransitionMatrix::GetNewRoMatrix(MKL_Complex16* Ro, CRSMatrix& Ub, int N) {
 	MKL_Complex16* Intermed = CRSMatrix::MultCRSDense(Ub, Ro, N);
 	

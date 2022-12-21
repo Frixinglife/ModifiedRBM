@@ -146,6 +146,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Headers\BellStateReconstructionWithMixing.h" />
     <ClInclude Include="Headers\ComplexMKL.h" />
     <ClInclude Include="Headers\CRSMatrix.h" />
     <ClInclude Include="Headers\DataType.h" />
@@ -157,6 +158,7 @@
     <ClInclude Include="Headers\TransitionMatrix.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Implementation\BellStateReconstructionWithMixing.cpp" />
     <ClCompile Include="Implementation\CRSMatrix.cpp" />
     <ClCompile Include="Implementation\MatrixAndVectorOperations.cpp" />
     <ClCompile Include="Implementation\ModifiedRBM.cpp" />
