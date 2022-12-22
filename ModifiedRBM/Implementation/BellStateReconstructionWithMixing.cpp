@@ -66,7 +66,7 @@ double GetFidelity(int N, MKL_Complex16* OriginalRoMatrix, MKL_Complex16* RoMatr
 
     double Trace = 0.0;
     for (int i = 0; i < N; i++) {
-        Trace += Intermed[i].real();
+        Trace += Intermed[i + i * N].real();
     }
 
     delete[]Result;
@@ -157,17 +157,24 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
     MKL_Complex16** OriginalRoMatrices = new MKL_Complex16* [NumberOfBases];
 
     std::ofstream* fout_fidelity = new std::ofstream[NumberOfBases];
+    std::ofstream* fout_diag_original = new std::ofstream[NumberOfBases];
+    std::ofstream* fout_diag_basis = new std::ofstream[NumberOfBases];
 
     for (int b = 0; b < NumberOfBases; b++) {
         OriginalRoMatrices[b] = TransitionMatrix::GetNewRoMatrix(OriginalRoMatrix, UbMatrices[b], N);
 
         fout_fidelity[b] = std::ofstream("..\\Results\\fidelity_" + std::string(TYPE_OUT) + "_" 
             + std::to_string(b) + ".txt", std::ios_base::out | std::ios_base::trunc);
+
+        fout_diag_original[b] = std::ofstream("..\\Results\\diag_original_" + std::string(TYPE_OUT) + "_" +
+            std::to_string(b) + ".txt", std::ios_base::out | std::ios_base::trunc);
+
+        fout_diag_basis[b] = std::ofstream("..\\Results\\diag_basis_" + std::string(TYPE_OUT) + "_" +
+            std::to_string(b) + ".txt", std::ios_base::out | std::ios_base::trunc);
     }
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    double fidelity = 0.0;
     for (int b = 0; b < NumberOfBases; b++) {
         for (int l = 1; l <= epochs; l++) {
             MKL_Complex16* RoMatrix = RBM.GetRoMatrix();
@@ -178,6 +185,13 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
                 MKL_Complex16* NewRoMatrix = TransitionMatrix::GetNewRoMatrix(RoMatrix, UbMatrices[b], N);
 
                 fout_fidelity[b] << GetFidelity(N, OriginalRoMatrices[b], NewRoMatrix) << "\n";
+
+                if (l == epochs) {
+                    for (int i = 0; i < N; i++) {
+                        fout_diag_basis[b] << NewRoMatrix[i + i * N].real() << "\n";
+                        fout_diag_original[b] << OriginalRoMatrices[b][i + i * N].real() << "\n";
+                    }
+                }
 
                 delete[] NewRoMatrix;
             }
@@ -190,6 +204,8 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
     auto diff = std::chrono::high_resolution_clock::now() - start;
 
     for (int b = 0; b < NumberOfBases; b++) {
+        fout_diag_original[b].close();
+        fout_diag_basis[b].close();
         fout_fidelity[b].close();
     }
 
@@ -216,5 +232,46 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
     std::cout << "Fidelity: " << GetFidelity(N, OriginalRoMatrix, RBM.GetRoMatrix()) << "\n";
 
     delete[]fout_fidelity;
+    delete[]UbMatrices;
+}
+
+void BellStateReconstructionWithMixingForAllBasis(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMatrix, 
+    double alpha, int epochs, acc_number lr, int freq) {
+
+    std::cout << "Starting the training process\n\n";
+    std::cout << "Iterations:\n";
+
+    int N = RBM.FirstModifiedRBM.N_v;
+
+    CRSMatrix* UbMatrices = GetUbMatrices();
+    int NumberOfBases = 9;
+
+    MKL_Complex16** OriginalRoMatrices = new MKL_Complex16 * [NumberOfBases];
+
+    for (int b = 0; b < NumberOfBases; b++) {
+        OriginalRoMatrices[b] = TransitionMatrix::GetNewRoMatrix(OriginalRoMatrix, UbMatrices[b], N);
+    }
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+    for (int l = 1; l <= epochs; l++) {
+        MKL_Complex16* RoMatrix = RBM.GetRoMatrix();
+
+        std::cout << l << " / " << epochs << " \n";
+
+        RBM.WeightMatricesUpdate(N, OriginalRoMatrices, RoMatrix, NumberOfBases, UbMatrices, lr);
+        delete[]RoMatrix;
+    }
+
+    auto diff = std::chrono::high_resolution_clock::now() - start;
+
+    double work_time = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(diff).count()) / 1000.0;
+
+    std::cout << "\nFinishing the training process\n";
+    std::cout << "\nMatrix size: " << N << " x " << N << "\n";
+    std::cout << "Data type: " << TYPE_OUT << "\n";
+    std::cout << "Time: " << work_time << " s\n";
+    std::cout << "Fidelity: " << GetFidelity(N, OriginalRoMatrix, RBM.GetRoMatrix()) << "\n";
+
     delete[]UbMatrices;
 }

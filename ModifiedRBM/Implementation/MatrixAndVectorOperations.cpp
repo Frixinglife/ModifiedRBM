@@ -196,7 +196,7 @@ void MatrixAndVectorOperations::SqrtMatrix(int N, MKL_Complex16* Matrix, MKL_Com
         double real = J[i + i * N].real();
         double imag = J[i + i * N].imag();
         double sqrt_real = 0.0;
-        if (std::abs(real) >= 1e-10) {
+        if (real > 0.0) {
             sqrt_real = std::sqrt(real);
         }
         J[i + i * N] = MKL_Complex16(sqrt_real, imag);

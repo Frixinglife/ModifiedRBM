@@ -17,11 +17,11 @@ int main() {
 
     //TrainingExperimentSeparatelyForBases(N_v, N_h, N_a, NumberOfBases, NumberOfUnitary, epochs, lr, freq);
 
-    double alpha = 0.5;
+    double alpha = 1.0;
     int N_h = 1;
     int N_a = 2;
     acc_number lr = (acc_number)1e-2;
-    int epochs = 2000;
+    int epochs = 1000;
     int freq = 2;
 
     BellStateReconstructionExperiment(alpha, N_h, N_a, epochs, lr, freq);
