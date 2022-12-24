@@ -1,4 +1,4 @@
-#include "BellStateReconstructionExperiment.h"
+#include "BellStateReconstructionExperiments.h"
 #include "TransitionMatrixCRSExperiments.h"
 #include "TransitionMatrixExperiments.h"
 #include "CRSMatrixExperiments.h"
