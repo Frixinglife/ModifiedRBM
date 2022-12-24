@@ -26,7 +26,7 @@
     <ClCompile Include="Implementation\TrainingExperiments.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Implementation\BellStateReconstructionExperiment.cpp">
+    <ClCompile Include="Implementation\BellStateReconstructionExperiments.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -46,7 +46,7 @@
     <ClInclude Include="Headers\TrainingExperiments.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\BellStateReconstructionExperiment.h">
+    <ClInclude Include="Headers\BellStateReconstructionExperiments.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

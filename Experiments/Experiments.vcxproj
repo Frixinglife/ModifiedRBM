@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Implementation\BellStateReconstructionExperiment.cpp" />
+    <ClCompile Include="Implementation\BellStateReconstructionExperiments.cpp" />
     <ClCompile Include="Implementation\CRSMatrixExperiments.cpp" />
     <ClCompile Include="Implementation\RoMatrixExperiments.cpp" />
     <ClCompile Include="Implementation\TrainingExperiments.cpp" />
@@ -27,7 +27,7 @@
     <ClCompile Include="Implementation\TransitionMatrixCRSExperiments.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Headers\BellStateReconstructionExperiment.h" />
+    <ClInclude Include="Headers\BellStateReconstructionExperiments.h" />
     <ClInclude Include="Headers\CRSMatrixExperiments.h" />
     <ClInclude Include="Headers\RoMatrixExperiments.h" />
     <ClInclude Include="Headers\TrainingExperiments.h" />
