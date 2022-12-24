@@ -745,7 +745,8 @@ TComplex* NeuralDensityOperators::WeightSumLambdaMu(int N, MKL_Complex16** Origi
                     Sum += CSR_val_i * CSR_val_j * (TComplex)Ro[col_j + col_i * N];
                 }
             }
-            if (Sum.real() < EPS && Sum.imag() < EPS) {
+            acc_number eps = (acc_number)1e-10;
+            if (Sum.real() < eps && Sum.imag() < eps) {
                 continue;
             }
             Sum = TComplex((acc_number)OriginalRo[b][i_n + i_n * N].real(), ZERO) / Sum;
@@ -1318,7 +1319,8 @@ TComplex* NeuralDensityOperators::WeightSumLambdaMu(int N, MKL_Complex16* Origin
                 Sum += CSR_val_i * CSR_val_j * (TComplex)Ro[col_j + col_i * N];
             }
         }
-        if (Sum.real() < EPS && Sum.imag() < EPS) {
+        acc_number eps = (acc_number)1e-10;
+        if (Sum.real() < eps && Sum.imag() < eps) {
             continue;
         }
         Sum = TComplex((acc_number)OriginalRo[i_n + i_n * N].real(), ZERO) / Sum;
