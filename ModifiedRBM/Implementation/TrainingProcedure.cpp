@@ -49,7 +49,9 @@ double KullbachLeiblerNorm(int N, MKL_Complex16** OriginalRoMatrices, MKL_Comple
         for (int i = 0; i < N; i++) {
             double OrigRo_elem = OriginalRoMatrices[b][i + i * N].real();
             double RoRBM_elem = NewRoMatrix[i + i * N].real();
-            result += OrigRo_elem * std::log(OrigRo_elem / RoRBM_elem);
+            if (std::abs(OrigRo_elem) >= 1e-8) {
+                result += OrigRo_elem * std::log(OrigRo_elem / RoRBM_elem);
+            }
         }
     }
     return result;
@@ -155,7 +157,9 @@ double KullbachLeiblerNorm(int N, MKL_Complex16* OriginalRoMatrix, MKL_Complex16
     for (int i = 0; i < N; i++) {
         double OrigRo_elem = OriginalRoMatrix[i + i * N].real();
         double RoRBM_elem = NewRoMatrixRBM[i + i * N].real();
-        result += OrigRo_elem * std::log(OrigRo_elem / RoRBM_elem);
+        if (std::abs(OrigRo_elem) >= 1e-8) {
+            result += OrigRo_elem * std::log(OrigRo_elem / RoRBM_elem);
+        }
     }
     return result;
 }

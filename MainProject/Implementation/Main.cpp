@@ -7,9 +7,9 @@
 
 int main() {
     //int N_v, N_h, N_a;
-    //N_v = 32;
+    //N_v = 64;
     //N_h = N_a = 4;
-    //int NumberOfBases = 5;
+    //int NumberOfBases = 6;
     //int NumberOfUnitary = 1;
     //acc_number lr = (acc_number)1e-2;
     //int epochs = 2000;
