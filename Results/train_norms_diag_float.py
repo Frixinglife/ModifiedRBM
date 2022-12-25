@@ -79,6 +79,7 @@ ax1.grid(True, linestyle='-', color='0.75')
 ax1.set_xlabel("Номер эпохи, i")
 ax1.set_ylabel(r"$|| diag(\rho_{RBM}^{i}) - diag(\rho_{Original}) || _{2}$")
 ax1.legend()
+ax1.set_yscale("log")
 
 # ax2.plot(epochs, data_eig_norm_f, 'g--', epochs, data_eig_norm_d, 'r^')
 for i in range(NumberOfBases):
@@ -88,6 +89,7 @@ ax2.grid(True, linestyle='-', color='0.75')
 ax2.set_xlabel("Номер эпохи, i")
 ax2.set_ylabel(r"$\max_{|\lambda|}(\rho_{RBM}^{i} - \rho_{Original})$")
 ax2.legend()
+ax2.set_yscale("log")
  
 # fig.legend(labels=labels, loc='upper right')
  

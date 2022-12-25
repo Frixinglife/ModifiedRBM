@@ -173,6 +173,41 @@ double KullbachLeiblerNorm(int N, MKL_Complex16* OriginalRoMatrix, MKL_Complex16
     return result;
 }
 
+double NormMatrixDiag(int N, MKL_Complex16* OriginalRoMatrix, MKL_Complex16* RoMatrixRBM) {
+    double result = 0.0;
+    for (int i = 0; i < N; i++) {
+        double diff = OriginalRoMatrix[i + i * N].real() - RoMatrixRBM[i + i * N].real();
+        result += diff * diff;
+    }
+    return std::sqrt(result);
+}
+
+double MaxEigDiffMarix(int N, MKL_Complex16* OriginalRoMatrix, MKL_Complex16* RoMatrixRBM) {
+    MKL_Complex16* Diff = new MKL_Complex16[N * N];
+    for (int i = 0; i < N * N; i++) {
+        Diff[i] = OriginalRoMatrix[i] - RoMatrixRBM[i];
+    }
+
+    MKL_Complex16* EigVector = new MKL_Complex16[N];
+    MatrixAndVectorOperations::FindEigMatrix(N, Diff, EigVector);
+
+    double MaxLambda = -1e6;
+
+    for (int i = 0; i < N; i++) {
+        double Re = EigVector[i].real();
+        double Im = EigVector[i].imag();
+        double Value = std::sqrt(Re * Re + Im * Im);
+        if (Value > MaxLambda) {
+            MaxLambda = Value;
+        }
+    }
+
+    delete[] Diff;
+    delete[] EigVector;
+
+    return MaxLambda;
+}
+
 void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMatrix, double alpha, int epochs, acc_number lr, int freq) {
     std::cout << "Starting the training process\n\n";
     std::cout << "Iterations:\n";
@@ -189,6 +224,10 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
     std::ofstream* fout_kullbach_leibler_norms = new std::ofstream[NumberOfBases];
     std::ofstream fout_kullbach_leibler_norm("..\\Results\\kullbach_leibler_norm_"
         + std::string(TYPE_OUT) + ".txt", std::ios_base::out | std::ios_base::trunc);
+    std::ofstream fout_diag_norm("..\\Results\\diag_norm_" + std::string(TYPE_OUT) + ".txt", std::ios_base::out | std::ios_base::trunc);
+    std::ofstream fout_eig_norm("..\\Results\\eig_norm_" + std::string(TYPE_OUT) + ".txt", std::ios_base::out | std::ios_base::trunc);
+    std::ofstream* fout_diag_norms = new std::ofstream[NumberOfBases];
+    std::ofstream* fout_eig_norms = new std::ofstream[NumberOfBases];
 
     for (int b = 0; b < NumberOfBases; b++) {
         OriginalRoMatrices[b] = TransitionMatrix::GetNewRoMatrix(OriginalRoMatrix, UbMatrices[b], N);
@@ -204,6 +243,12 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
 
         fout_kullbach_leibler_norms[b] = std::ofstream("..\\Results\\kullbach_leibler_norm_"
             + std::string(TYPE_OUT) + "_" + std::to_string(b) + ".txt", std::ios_base::out | std::ios_base::trunc);
+
+        fout_diag_norms[b] = std::ofstream("..\\Results\\diag_norm_" + std::string(TYPE_OUT) + "_" +
+            std::to_string(b) + ".txt", std::ios_base::out | std::ios_base::trunc);
+
+        fout_eig_norms[b] = std::ofstream("..\\Results\\eig_norm_" + std::string(TYPE_OUT) + "_" +
+            std::to_string(b) + ".txt", std::ios_base::out | std::ios_base::trunc);
     }
 
     auto start = std::chrono::high_resolution_clock::now();
@@ -219,6 +264,8 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
 
                 fout_fidelity[b] << GetFidelity(N, OriginalRoMatrices[b], NewRoMatrix) << "\n";
                 fout_kullbach_leibler_norms[b] << KullbachLeiblerNorm(N, OriginalRoMatrices[b], NewRoMatrix) << "\n";
+                fout_diag_norms[b] << NormMatrixDiag(N, OriginalRoMatrices[b], NewRoMatrix) << "\n";
+                fout_eig_norms[b] << MaxEigDiffMarix(N, OriginalRoMatrices[b], NewRoMatrix) << "\n";
 
                 //if (l == epochs) {
                 //    for (int i = 0; i < N; i++) {
@@ -229,6 +276,8 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
 
                 if (b == NumberOfBases - 1) {
                     fout_kullbach_leibler_norm << KullbachLeiblerNorm(N, OriginalRoMatrices, RoMatrix, NumberOfBases, UbMatrices) << "\n";
+                    fout_diag_norm << NormMatrixDiag(N, OriginalRoMatrix, RoMatrix) << "\n";
+                    fout_eig_norm << MaxEigDiffMarix(N, OriginalRoMatrix, RoMatrix) << "\n";
                 }
 
                 delete[] NewRoMatrix;
@@ -241,12 +290,16 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
 
     auto diff = std::chrono::high_resolution_clock::now() - start;
 
+    fout_diag_norm.close();
+    fout_eig_norm.close();
     fout_kullbach_leibler_norm.close();
     for (int b = 0; b < NumberOfBases; b++) {
         fout_kullbach_leibler_norms[b].close();
         //fout_diag_original[b].close();
         //fout_diag_basis[b].close();
         fout_fidelity[b].close();
+        fout_diag_norms[b].close();
+        fout_eig_norms[b].close();
     }
 
     double work_time = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(diff).count()) / 1000.0;
