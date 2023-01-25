@@ -25,6 +25,7 @@ public:
     static void VectorVectorMult(int N, int M, acc_number* FirstVec, acc_number* SecondVec, acc_number* MatrixResult);
     static void FindEigMatrix(int N, MKL_Complex16* Matrix, MKL_Complex16* Result);
     static void SqrtMatrix(int N, MKL_Complex16* Matrix, MKL_Complex16* Result);
+    static void GetInvMatrix(int N, MKL_Complex16* Matrix, MKL_Complex16* Result);
 };
 
 #endif //_MATRIX_AND_VECTOR_OPERATIONS_H_

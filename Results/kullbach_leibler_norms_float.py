@@ -52,6 +52,6 @@ plt.plot(epochs, kullbach_leibler_norm_float, 'g--', label = 'По всем ба
 plt.grid(True, linestyle='-', color='0.75')
 plt.legend()
 plt.xlabel("Номер эпохи, i")
-plt.ylabel(r"$ \sum_{b} \sum_{i=1}^{n-1} \rho^b_{Original}(i,i) \cdot \log \frac{\rho^b_{Original}(i,i)}{\rho_{RBM}(i,i)} $")
+plt.ylabel(r"$ \sum_{b} \sum_{i=0}^{n-1} \rho^b_{Original}(i,i) \cdot \log \frac{\rho^b_{Original}(i,i)}{\rho_{RBM}(i,i)} $")
  
 plt.show()

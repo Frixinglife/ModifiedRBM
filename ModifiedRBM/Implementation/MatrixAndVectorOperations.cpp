@@ -166,6 +166,26 @@ void MatrixAndVectorOperations::FindEigMatrix(int N, MKL_Complex16* Matrix, MKL_
     delete[]rwork;
 }
 
+void MatrixAndVectorOperations::GetInvMatrix(int N, MKL_Complex16* Matrix, MKL_Complex16* Result) {
+    const int N_N = N * N;
+    const int N_2 = 2 * N;
+    const int lwork = 2 * N;
+    const int lda = N;
+    int info;
+
+    MKL_Complex16* Work = new MKL_Complex16[N_2];
+    MKL_Complex16* LU = new MKL_Complex16[N_N];
+    int* ipiv = new int[N];
+    for (int i = 0; i < N_N; i++) {
+        LU[i] = Matrix[i];
+    }
+    zgetrf(&N, &N, LU, &lda, ipiv, &info);
+    zgetri(&N, LU, &lda, ipiv, Work, &lwork, &info);
+    for (int i = 0; i < N_N; i++) {
+        Result[i] = LU[i];
+    }
+}
+
 void MatrixAndVectorOperations::SqrtMatrix(int N, MKL_Complex16* Matrix, MKL_Complex16* Result) {
     const char jobvl = 'N';
     const char jobvr = 'V';

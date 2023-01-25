@@ -269,8 +269,11 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
 
                 //if (l == epochs) {
                 //    for (int i = 0; i < N; i++) {
-                //        fout_diag_basis[b] << NewRoMatrix[i + i * N].real() << "\n";
                 //        fout_diag_original[b] << OriginalRoMatrices[b][i + i * N].real() << "\n";
+                //        for (int j = 0; j < N; j++) {
+                //            fout_diag_basis[b] << NewRoMatrix[j + i * N].real() << "\t";
+                //        }
+                //        fout_diag_basis[b] << "\n";
                 //    }
                 //}
 
