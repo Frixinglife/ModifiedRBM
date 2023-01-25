@@ -4,8 +4,8 @@
 #include <iostream>
 #include <fstream>
 
-void GetRoMatrixAndEig(int N_v, int N_h, int N_a, bool plot) {
-    NeuralDensityOperators DensityOperators(N_v, N_h, N_a);
+void GetRoMatrixAndEig(int N_v, int N_h, int N_a, bool plot, std::string type) {
+    NeuralDensityOperators DensityOperators(N_v, N_h, N_a, 42, type);
 
     DensityOperators.PrintRBMs();
 
@@ -25,10 +25,10 @@ void GetRoMatrixAndEig(int N_v, int N_h, int N_a, bool plot) {
     delete[]RoMatrix;
 }
 
-void GetWorkTime(int N_v, int N_h, int N_a, bool plot) {
+void GetWorkTime(int N_v, int N_h, int N_a, bool plot, std::string type) {
     std::ofstream fout("..\\Results\\times.txt", std::ios_base::app);
 
-    NeuralDensityOperators DensityOperators(N_v, N_h, N_a);
+    NeuralDensityOperators DensityOperators(N_v, N_h, N_a, 42, type);
 
     double work_time = 0.0;
     MKL_Complex16* RoMatrix = DensityOperators.GetRoMatrix(&work_time, plot);

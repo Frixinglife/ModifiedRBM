@@ -3,6 +3,7 @@
 #include "RandomMatricesForRBM.h"
 #include <iostream>
 #include <fstream>
+#include <string>
 #include <chrono>
 #include <cmath>
 #include "omp.h"
@@ -11,7 +12,7 @@ acc_number ONE = (acc_number)1.0;
 acc_number HALF = (acc_number)0.5;
 acc_number ZERO = (acc_number)0.0;
 
-NeuralDensityOperators::NeuralDensityOperators(int N_v, int N_h, int N_a, int seed) {
+NeuralDensityOperators::NeuralDensityOperators(int N_v, int N_h, int N_a, int seed, std::string type) {
     const int N_h_N_v = N_h * N_v;
     const int N_a_N_v = N_a * N_v;
 
@@ -26,23 +27,69 @@ NeuralDensityOperators::NeuralDensityOperators(int N_v, int N_h, int N_a, int se
     acc_number* b_2 = new acc_number[N_v];
     acc_number* c_2 = new acc_number[N_h];
     acc_number* d_2 = new acc_number[N_a];
+    
+    if (type == "identity") {
+        for (int i = 0; i < N_h; i++) {
+            for (int j = 0; j < N_v; j++) {
+                W_1[j + i * N_v] = (acc_number)-50.0;
+            }
+        }
 
-    RandomMatricesForRBM Random(seed);
+        RandomMatricesForRBM Random(seed);
+        Random.GetRandomMatrix(V_1, N_a, N_v);
 
-    Random.GetRandomMatrix(W_1, N_h, N_v);
-    Random.GetRandomMatrix(W_2, N_h, N_v);
+        for (int i = 0; i < N_v; i++) {
+            b_1[i] = (acc_number)-50.0;
+        }
 
-    Random.GetRandomMatrix(V_1, N_a, N_v);
-    Random.GetRandomMatrix(V_2, N_a, N_v);
+        for (int i = 0; i < N_h; i++) {
+            c_1[i] = ZERO;
+        }
 
-    Random.GetRandomVector(b_1, N_v);
-    Random.GetRandomVector(b_2, N_v);
+        for (int i = 0; i < N_a; i++) {
+            d_1[i] = ZERO;
+        }
 
-    Random.GetRandomVector(c_1, N_h);
-    Random.GetRandomVector(c_2, N_h);
+        for (int i = 0; i < N_h; i++) {
+            for (int j = 0; j < N_v; j++) {
+                W_2[j + i * N_v] = ONE;
+            }
+        }
 
-    Random.GetRandomVector(d_1, N_a);
-    Random.GetRandomVector(d_2, N_a);
+        for (int i = 0; i < N_a; i++) {
+            for (int j = 0; j < N_v; j++) {
+                V_2[j + i * N_v] = ONE;
+            }
+        }
+        for (int i = 0; i < N_v; i++) {
+            b_2[i] = ZERO;
+        }
+
+        for (int i = 0; i < N_h; i++) {
+            c_2[i] = ZERO;
+        }
+
+        for (int i = 0; i < N_a; i++) {
+            d_2[i] = ZERO;
+        }
+    } else {
+        RandomMatricesForRBM Random(seed);
+
+        Random.GetRandomMatrix(W_1, N_h, N_v);
+        Random.GetRandomMatrix(W_2, N_h, N_v);
+
+        Random.GetRandomMatrix(V_1, N_a, N_v);
+        Random.GetRandomMatrix(V_2, N_a, N_v);
+
+        Random.GetRandomVector(b_1, N_v);
+        Random.GetRandomVector(b_2, N_v);
+
+        Random.GetRandomVector(c_1, N_h);
+        Random.GetRandomVector(c_2, N_h);
+
+        Random.GetRandomVector(d_1, N_a);
+        Random.GetRandomVector(d_2, N_a);
+    }
 
     FirstModifiedRBM.SetModifiedRBM(N_v, N_h, N_a, W_1, V_1, b_1, c_1, d_1);
     SecondModifiedRBM.SetModifiedRBM(N_v, N_h, N_a, W_2, V_2, b_2, c_2, d_2);

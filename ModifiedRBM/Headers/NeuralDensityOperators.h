@@ -10,7 +10,7 @@ class NeuralDensityOperators {
 public:
     ModifiedRBM FirstModifiedRBM, SecondModifiedRBM;
 
-    NeuralDensityOperators(int N_v, int N_h, int N_a, int seed = 42);
+    NeuralDensityOperators(int N_v, int N_h, int N_a, int seed = 42, std::string type = "random");
     ~NeuralDensityOperators() {};
 
     void PrintRBMs() const;

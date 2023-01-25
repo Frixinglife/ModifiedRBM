@@ -6,6 +6,8 @@
 #include "TrainingExperiments.h"
 
 int main() {
+    GetRoMatrixAndEig(4, 1, 2, false, "identity");
+
     //int N_v, N_h, N_a;
     //N_v = 64;
     //N_h = N_a = 4;
@@ -17,14 +19,14 @@ int main() {
 
     //TrainingExperimentSeparatelyForBases(N_v, N_h, N_a, NumberOfBases, NumberOfUnitary, epochs, lr, freq);
 
-    double alpha = 1.0;
-    int N_h = 1;
-    int N_a = 2;
-    acc_number lr = (acc_number)1e-2;
-    int epochs = 1000;
-    int freq = 2;
+    //double alpha = 1.0;
+    //int N_h = 1;
+    //int N_a = 2;
+    //acc_number lr = (acc_number)1e-2;
+    //int epochs = 1000;
+    //int freq = 2;
 
-    BellStateReconstructionExperiment(alpha, N_h, N_a, epochs, lr, freq);
+    //BellStateReconstructionExperiment(alpha, N_h, N_a, epochs, lr, freq);
 
     return 0;
 }
