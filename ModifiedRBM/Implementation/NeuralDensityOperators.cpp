@@ -31,15 +31,18 @@ NeuralDensityOperators::NeuralDensityOperators(int N_v, int N_h, int N_a, int se
     if (type == "identity") {
         for (int i = 0; i < N_h; i++) {
             for (int j = 0; j < N_v; j++) {
-                W_1[j + i * N_v] = (acc_number)-50.0;
+                W_1[j + i * N_v] = ZERO;
             }
         }
 
-        RandomMatricesForRBM Random(seed);
-        Random.GetRandomMatrix(V_1, N_a, N_v);
+        for (int i = 0; i < N_a; i++) {
+            for (int j = 0; j < N_v; j++) {
+                V_1[j + i * N_v] = ZERO;
+            }
+        }
 
         for (int i = 0; i < N_v; i++) {
-            b_1[i] = (acc_number)-50.0;
+            b_1[i] = ZERO;
         }
 
         for (int i = 0; i < N_h; i++) {
@@ -52,15 +55,16 @@ NeuralDensityOperators::NeuralDensityOperators(int N_v, int N_h, int N_a, int se
 
         for (int i = 0; i < N_h; i++) {
             for (int j = 0; j < N_v; j++) {
-                W_2[j + i * N_v] = ONE;
+                W_2[j + i * N_v] = ZERO;
             }
         }
 
         for (int i = 0; i < N_a; i++) {
             for (int j = 0; j < N_v; j++) {
-                V_2[j + i * N_v] = ONE;
+                V_2[j + i * N_v] = ZERO;
             }
         }
+
         for (int i = 0; i < N_v; i++) {
             b_2[i] = ZERO;
         }

@@ -3,6 +3,7 @@
 #include "TransitionMatrix.h"
 #include <iostream>
 #include <fstream>
+#include <string>
 
 void GetRoMatrixAndEig(int N_v, int N_h, int N_a, bool plot, std::string type) {
     NeuralDensityOperators DensityOperators(N_v, N_h, N_a, 42, type);
