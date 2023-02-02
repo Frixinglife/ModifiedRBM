@@ -262,3 +262,123 @@ void MatrixAndVectorOperations::SqrtMatrix(int N, MKL_Complex16* Matrix, MKL_Com
     delete[]rwork;
     delete[]Intermed;
 }
+
+//void MatrixAndVectorOperations::SqrtMatrix(int N, MKL_Complex16* Matrix, MKL_Complex16* Result) {
+//    Matrix[0] = MKL_Complex16(1.0, 0.0);
+//    Matrix[1] = MKL_Complex16(2.0, 0.0);
+//    Matrix[2] = MKL_Complex16(3.0, 0.0);
+//    Matrix[3] = MKL_Complex16(4.0, 0.0);
+//
+//    Matrix[4] = MKL_Complex16(0.0, 0.0);
+//    Matrix[5] = MKL_Complex16(5.0, 0.0);
+//    Matrix[6] = MKL_Complex16(6.0, 0.0);
+//    Matrix[7] = MKL_Complex16(7.0, 0.0);
+//
+//    Matrix[8] = MKL_Complex16(0.0, 0.0);
+//    Matrix[9] = MKL_Complex16(0.0, 0.0);
+//    Matrix[10] = MKL_Complex16(8.0, 0.0);
+//    Matrix[11] = MKL_Complex16(9.0, 0.0);
+//
+//    Matrix[12] = MKL_Complex16(0.0, 0.0);
+//    Matrix[13] = MKL_Complex16(0.0, 0.0);
+//    Matrix[14] = MKL_Complex16(0.0, 0.0);
+//    Matrix[15] = MKL_Complex16(10.0, 0.0);
+//
+//    MKL_Z_SELECT_FUNCTION_1 select = NULL;
+//    const char jobvs = 'V';
+//    const char sort = 'N';
+//    const int N_N = N * N;
+//    const int N_2 = 2 * N;
+//    const int lda = N;
+//    const int ldvs = N;
+//    const int lwork = 2 * N;
+//    int sdim, info, bwork;
+//
+//    MKL_Complex16* A = new MKL_Complex16[N_N];
+//    MKL_Complex16* W = new MKL_Complex16[N];
+//    MKL_Complex16* VS = new MKL_Complex16[N_N];
+//    MKL_Complex16* VS_INV = new MKL_Complex16[N_N];
+//    MKL_Complex16* Intermed = new MKL_Complex16[N_N];
+//    MKL_Complex16* Work = new MKL_Complex16[N_2];
+//    double* rwork = new double[N];
+//
+//    for (int i = 0; i < N_N; i++) {
+//        A[i] = Matrix[i];
+//    }
+//
+//    //zgees(&jobvs, &sort, select, &N, A, &lda, &sdim, W, VS, &ldvs, Work, &lwork, rwork, &bwork, &info);
+//
+//    //for (int i = 0; i < N; i++) {
+//    //    for (int j = i; j < N; j++) {
+//    //        MKL_Complex16 Temp = A[j + i * N];
+//    //        A[j + i * N] = A[i + j * N];
+//    //        A[i + j * N] = Temp;
+//    //    }
+//    //}
+//
+//    for (int i = 0; i < N; i++) {
+//        double sqrt_real = 0.0;
+//        if (A[i + i * N].real() > 0.0) {
+//            sqrt_real = std::sqrt(A[i + i * N].real());
+//        }
+//        A[i + i * N] = MKL_Complex16(sqrt_real, 0.0);
+//    }
+//
+//    for (int i = 0; i < N; i++) {
+//        for (int j = i + 1; j < N; j++) {
+//            double sum = A[i + i * N].real() + A[j + j * N].real();
+//            if (std::abs(sum) < 1e-6) {
+//                A[j + i * N] = MKL_Complex16(0.0, 0.0);
+//            } else {
+//                for (int k = i + 1; k < j; k++) {
+//                    A[j + i * N] -= A[k + i * N] * A[j + k * N];
+//                }
+//                A[j + i * N] /= sum;
+//            }  
+//        }
+//    }
+//
+//    /*for (int i = 0; i < N; i++) {
+//        for (int j = i; j < N; j++) {
+//            MKL_Complex16 Temp = A[j + i * N];
+//            A[j + i * N] = A[i + j * N];
+//            A[i + j * N] = Temp;
+//        }
+//    }
+//
+//    for (int i = 0; i < N; i++) {
+//        for (int j = i; j < N; j++) {
+//            MKL_Complex16 Temp = MKL_Complex16(VS[j + i * N].real(), -VS[j + i * N].imag());
+//            VS[j + i * N] = MKL_Complex16(VS[i + j * N].real(), -VS[i + j * N].imag());
+//            VS[i + j * N] = Temp;
+//        }
+//    }
+//
+//    GetInvMatrix(N, VS, VS_INV);
+//
+//    for (int i = 0; i < N; i++) {
+//        for (int j = 0; j < N; j++) {
+//            Intermed[j + i * N] = MKL_Complex16(0.0, 0.0);
+//            for (int k = 0; k < N; k++) {
+//                Intermed[j + i * N] += VS[k + i * N] * A[j + k * N];
+//            }
+//        }
+//    }
+//
+//    for (int i = 0; i < N; i++) {
+//        for (int j = 0; j < N; j++) {
+//            Result[j + i * N] = MKL_Complex16(0.0, 0.0);
+//            for (int k = 0; k < N; k++) {
+//                Result[j + i * N] += Intermed[k + i * N] * VS_INV[j + k * N];
+//            }
+//        }
+//    }*/
+//
+//    delete[]A;
+//    delete[]W;
+//    delete[]VS;
+//    delete[]Work;
+//    delete[]rwork;
+//    delete[]VS_INV;
+//    delete[]Intermed;
+//}
