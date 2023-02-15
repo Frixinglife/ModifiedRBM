@@ -119,7 +119,7 @@ void EigenvectorsBasis(MKL_Complex16* RoMatrixRBM, MKL_Complex16* VR, int N) {
     delete[]rwork;
 }
 
-CRSMatrix* GetUbMatrices(MKL_Complex16* RoMatrixRBM) {
+CRSMatrix* GetUbMatrices() {
     MKL_Complex16 sigma_x[4] = {
         MKL_Complex16(0.0, 0.0),
         MKL_Complex16(1.0, 0.0),
@@ -141,7 +141,7 @@ CRSMatrix* GetUbMatrices(MKL_Complex16* RoMatrixRBM) {
         MKL_Complex16(-1.0, 0.0)
     };
 
-    const int B = 10;
+    const int B = 9;
     const int N = 4;
     const int size = 2;
     const int N_N = N * N;
@@ -152,19 +152,19 @@ CRSMatrix* GetUbMatrices(MKL_Complex16* RoMatrixRBM) {
         Matrices[b] = new MKL_Complex16[N_N];
     }
 
-    EigenvectorsBasis(RoMatrixRBM, Matrices[0], N);
+    //EigenvectorsBasis(RoMatrixRBM, Matrices[0], N);
 
-    KroneckerProduct(sigma_x, size, sigma_x, size, Matrices[1]);
-    KroneckerProduct(sigma_x, size, sigma_y, size, Matrices[2]);
-    KroneckerProduct(sigma_x, size, sigma_z, size, Matrices[3]);
+    KroneckerProduct(sigma_x, size, sigma_x, size, Matrices[0]);
+    KroneckerProduct(sigma_x, size, sigma_y, size, Matrices[1]);
+    KroneckerProduct(sigma_x, size, sigma_z, size, Matrices[2]);
 
-    KroneckerProduct(sigma_y, size, sigma_x, size, Matrices[4]);
-    KroneckerProduct(sigma_y, size, sigma_y, size, Matrices[5]);
-    KroneckerProduct(sigma_y, size, sigma_z, size, Matrices[6]);
+    KroneckerProduct(sigma_y, size, sigma_x, size, Matrices[3]);
+    KroneckerProduct(sigma_y, size, sigma_y, size, Matrices[4]);
+    KroneckerProduct(sigma_y, size, sigma_z, size, Matrices[5]);
 
-    KroneckerProduct(sigma_z, size, sigma_x, size, Matrices[7]);
-    KroneckerProduct(sigma_z, size, sigma_y, size, Matrices[8]);
-    KroneckerProduct(sigma_z, size, sigma_z, size, Matrices[9]);
+    KroneckerProduct(sigma_z, size, sigma_x, size, Matrices[6]);
+    KroneckerProduct(sigma_z, size, sigma_y, size, Matrices[7]);
+    KroneckerProduct(sigma_z, size, sigma_z, size, Matrices[8]);
 
     for (int b = 0; b < B; b++) {
         UbMatrices[b] = CRSMatrix(N, Matrices[b]);
@@ -204,9 +204,9 @@ void GetUnitaryMatrix(int seed, int N, MKL_Complex16* A) {
     delete[] A_double;
 }
 
-CRSMatrix* GetUbRandomMatrices(bool check = false) {
+CRSMatrix* GetUbRandomMatrices(int NumberOfBases, bool check = false) {
     const int N = 4;
-    const int B = 10;
+    const int B = NumberOfBases;
     const int N_N = N * N;
     
     CRSMatrix* UbMatrices = new CRSMatrix[B];
@@ -312,13 +312,13 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
     std::cout << "Iterations:\n";
 
     int N = RBM.FirstModifiedRBM.N_v;
-    int NumberOfBases = 10;
+    int NumberOfBases = 9;
 
     /*MKL_Complex16* RoMatrixRBM = RBM.GetRoMatrix();
     CRSMatrix* UbMatrices = GetUbMatrices(RoMatrixRBM);
     delete[] RoMatrixRBM;*/
 
-    CRSMatrix* UbMatrices = GetUbRandomMatrices();
+    CRSMatrix* UbMatrices = GetUbRandomMatrices(NumberOfBases);
 
     MKL_Complex16** OriginalRoMatrices = new MKL_Complex16* [NumberOfBases];
 
@@ -396,6 +396,10 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
         }
     }
 
+    MKL_Complex16* RoMatrix = RBM.GetRoMatrix();
+    TransitionMatrix::PrintMatrix(RoMatrix, N, N, "Ro");
+    delete[]RoMatrix;
+
     auto diff = std::chrono::high_resolution_clock::now() - start;
 
     fout_diag_norm.close();
@@ -445,10 +449,10 @@ void BellStateReconstructionWithMixingForAllBasis(NeuralDensityOperators& RBM, M
     int N = RBM.FirstModifiedRBM.N_v;
 
     MKL_Complex16* RoMatrixRBM = RBM.GetRoMatrix();
-    CRSMatrix* UbMatrices = GetUbMatrices(RoMatrixRBM);
+    CRSMatrix* UbMatrices = GetUbMatrices();
     delete[] RoMatrixRBM;
 
-    int NumberOfBases = 10;
+    int NumberOfBases = 9;
 
     MKL_Complex16** OriginalRoMatrices = new MKL_Complex16 * [NumberOfBases];
 
