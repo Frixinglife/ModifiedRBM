@@ -89,7 +89,45 @@ void KroneckerProduct(MKL_Complex16* Matrix_A, int size_A, MKL_Complex16* Matrix
     }
 }
 
-CRSMatrix* GetUbMatrices() {
+void EigenvectorsBasis(MKL_Complex16* RoMatrixRBM, MKL_Complex16* VR, int N) {
+    const char jobvl = 'N';
+    const char jobvr = 'V';
+    const int N_N = N * N;
+    const int N_2 = 2 * N;
+    const int lda = N;
+    const int ldvl = N;
+    const int ldvr = N;
+    const int lwork = 2 * N;
+    int info;
+
+    MKL_Complex16* J = new MKL_Complex16[N_N];
+    MKL_Complex16* W = new MKL_Complex16[N];
+    MKL_Complex16* VL = new MKL_Complex16[N_N];
+    MKL_Complex16* Work = new MKL_Complex16[N_2];
+    double* rwork = new double[N_2];
+
+    for (int i = 0; i < N_N; i++) {
+        J[i] = RoMatrixRBM[i];
+    }
+
+    zgeev(&jobvl, &jobvr, &N, J, &lda, W, VL, &ldvl, VR, &ldvr, Work, &lwork, rwork, &info);
+
+    //for (int i = 0; i < N; i++) {
+    //    for (int j = i; j < N; j++) {
+    //        MKL_Complex16 Temp = MKL_Complex16(VR[j + i * N].real(), -VR[j + i * N].imag());
+    //        VR[j + i * N] = MKL_Complex16(VR[i + j * N].real(), -VR[i + j * N].imag());
+    //        VR[i + j * N] = Temp;
+    //    }
+    //}
+
+    delete[]J;
+    delete[]W;
+    delete[]VL;
+    delete[]Work;
+    delete[]rwork;
+}
+
+CRSMatrix* GetUbMatrices(MKL_Complex16* RoMatrixRBM) {
     MKL_Complex16 sigma_x[4] = {
         MKL_Complex16(0.0, 0.0),
         MKL_Complex16(1.0, 0.0),
@@ -111,7 +149,7 @@ CRSMatrix* GetUbMatrices() {
         MKL_Complex16(-1.0, 0.0)
     };
 
-    const int B = 9;
+    const int B = 10;
     const int N = 4;
     const int size = 2;
     const int N_N = N * N;
@@ -122,17 +160,19 @@ CRSMatrix* GetUbMatrices() {
         Matrices[b] = new MKL_Complex16[N_N];
     }
 
-    KroneckerProduct(sigma_x, size, sigma_x, size, Matrices[0]);
-    KroneckerProduct(sigma_x, size, sigma_y, size, Matrices[1]);
-    KroneckerProduct(sigma_x, size, sigma_z, size, Matrices[2]);
+    EigenvectorsBasis(RoMatrixRBM, Matrices[0], N);
 
-    KroneckerProduct(sigma_y, size, sigma_x, size, Matrices[3]);
-    KroneckerProduct(sigma_y, size, sigma_y, size, Matrices[4]);
-    KroneckerProduct(sigma_y, size, sigma_z, size, Matrices[5]);
+    KroneckerProduct(sigma_x, size, sigma_x, size, Matrices[1]);
+    KroneckerProduct(sigma_x, size, sigma_y, size, Matrices[2]);
+    KroneckerProduct(sigma_x, size, sigma_z, size, Matrices[3]);
 
-    KroneckerProduct(sigma_z, size, sigma_x, size, Matrices[6]);
-    KroneckerProduct(sigma_z, size, sigma_y, size, Matrices[7]);
-    KroneckerProduct(sigma_z, size, sigma_z, size, Matrices[8]);
+    KroneckerProduct(sigma_y, size, sigma_x, size, Matrices[4]);
+    KroneckerProduct(sigma_y, size, sigma_y, size, Matrices[5]);
+    KroneckerProduct(sigma_y, size, sigma_z, size, Matrices[6]);
+
+    KroneckerProduct(sigma_z, size, sigma_x, size, Matrices[7]);
+    KroneckerProduct(sigma_z, size, sigma_y, size, Matrices[8]);
+    KroneckerProduct(sigma_z, size, sigma_z, size, Matrices[9]);
 
     for (int b = 0; b < B; b++) {
         UbMatrices[b] = CRSMatrix(N, Matrices[b]);
@@ -213,14 +253,17 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
     std::cout << "Iterations:\n";
 
     int N = RBM.FirstModifiedRBM.N_v;
-    int NumberOfBases = 9;
+    int NumberOfBases = 10;
 
-    CRSMatrix* UbMatrices = GetUbMatrices();
+    MKL_Complex16* RoMatrixRBM = RBM.GetRoMatrix();
+    CRSMatrix* UbMatrices = GetUbMatrices(RoMatrixRBM);
+    delete[] RoMatrixRBM;
+
     MKL_Complex16** OriginalRoMatrices = new MKL_Complex16* [NumberOfBases];
 
     std::ofstream* fout_fidelity = new std::ofstream[NumberOfBases];
-    //std::ofstream* fout_diag_original = new std::ofstream[NumberOfBases];
-    //std::ofstream* fout_diag_basis = new std::ofstream[NumberOfBases];
+    std::ofstream* fout_diag_original = new std::ofstream[NumberOfBases];
+    std::ofstream* fout_diag_basis = new std::ofstream[NumberOfBases];
     std::ofstream* fout_kullbach_leibler_norms = new std::ofstream[NumberOfBases];
     std::ofstream fout_kullbach_leibler_norm("..\\Results\\kullbach_leibler_norm_"
         + std::string(TYPE_OUT) + ".txt", std::ios_base::out | std::ios_base::trunc);
@@ -235,11 +278,11 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
         fout_fidelity[b] = std::ofstream("..\\Results\\fidelity_" + std::string(TYPE_OUT) + "_" 
             + std::to_string(b) + ".txt", std::ios_base::out | std::ios_base::trunc);
 
-        //fout_diag_original[b] = std::ofstream("..\\Results\\diag_original_" + std::string(TYPE_OUT) + "_" +
-        //    std::to_string(b) + ".txt", std::ios_base::out | std::ios_base::trunc);
+        fout_diag_original[b] = std::ofstream("..\\Results\\diag_original_" + std::string(TYPE_OUT) + "_" +
+            std::to_string(b) + ".txt", std::ios_base::out | std::ios_base::trunc);
 
-        //fout_diag_basis[b] = std::ofstream("..\\Results\\diag_basis_" + std::string(TYPE_OUT) + "_" +
-        //    std::to_string(b) + ".txt", std::ios_base::out | std::ios_base::trunc);
+        fout_diag_basis[b] = std::ofstream("..\\Results\\diag_basis_" + std::string(TYPE_OUT) + "_" +
+            std::to_string(b) + ".txt", std::ios_base::out | std::ios_base::trunc);
 
         fout_kullbach_leibler_norms[b] = std::ofstream("..\\Results\\kullbach_leibler_norm_"
             + std::string(TYPE_OUT) + "_" + std::to_string(b) + ".txt", std::ios_base::out | std::ios_base::trunc);
@@ -267,15 +310,16 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
                 fout_diag_norms[b] << NormMatrixDiag(N, OriginalRoMatrices[b], NewRoMatrix) << "\n";
                 fout_eig_norms[b] << MaxEigDiffMarix(N, OriginalRoMatrices[b], NewRoMatrix) << "\n";
 
-                //if (l == epochs) {
-                //    for (int i = 0; i < N; i++) {
-                //        fout_diag_original[b] << OriginalRoMatrices[b][i + i * N].real() << "\n";
-                //        for (int j = 0; j < N; j++) {
-                //            fout_diag_basis[b] << NewRoMatrix[j + i * N].real() << "\t";
-                //        }
-                //        fout_diag_basis[b] << "\n";
-                //    }
-                //}
+                if (l == epochs) {
+                    for (int i = 0; i < N; i++) {
+                        for (int j = 0; j < N; j++) {
+                            fout_diag_original[b] << OriginalRoMatrices[b][j + i * N].real() << "\t";
+                            fout_diag_basis[b] << NewRoMatrix[j + i * N].real() << "\t";
+                        }
+                        fout_diag_original[b] << "\n";
+                        fout_diag_basis[b] << "\n";
+                    }
+                }
 
                 if (b == NumberOfBases - 1) {
                     fout_kullbach_leibler_norm << KullbachLeiblerNorm(N, OriginalRoMatrices, RoMatrix, NumberOfBases, UbMatrices) << "\n";
@@ -298,8 +342,8 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
     fout_kullbach_leibler_norm.close();
     for (int b = 0; b < NumberOfBases; b++) {
         fout_kullbach_leibler_norms[b].close();
-        //fout_diag_original[b].close();
-        //fout_diag_basis[b].close();
+        fout_diag_original[b].close();
+        fout_diag_basis[b].close();
         fout_fidelity[b].close();
         fout_diag_norms[b].close();
         fout_eig_norms[b].close();
@@ -339,8 +383,11 @@ void BellStateReconstructionWithMixingForAllBasis(NeuralDensityOperators& RBM, M
 
     int N = RBM.FirstModifiedRBM.N_v;
 
-    CRSMatrix* UbMatrices = GetUbMatrices();
-    int NumberOfBases = 9;
+    MKL_Complex16* RoMatrixRBM = RBM.GetRoMatrix();
+    CRSMatrix* UbMatrices = GetUbMatrices(RoMatrixRBM);
+    delete[] RoMatrixRBM;
+
+    int NumberOfBases = 10;
 
     MKL_Complex16** OriginalRoMatrices = new MKL_Complex16 * [NumberOfBases];
 
