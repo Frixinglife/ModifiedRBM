@@ -3,12 +3,12 @@ import matplotlib.pyplot as plt
 # plt.rcParams.update({'font.size': 18})
 
 data_diag_d = []
-with open("matrix_diag_double.txt") as f:
+with open("..\\matrix_diag_double.txt") as f:
 	for line in f:
 		data_diag_d.append(float(line))
 
 data_diag_f = []
-with open("matrix_diag_float.txt") as f:
+with open("..\\matrix_diag_float.txt") as f:
 	for line in f:
 		data_diag_f.append(float(line))
 

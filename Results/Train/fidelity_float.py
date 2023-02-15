@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import random
 
 config = []
-with open("config.txt") as f:
+with open("..\\config.txt") as f:
     for line in f:
         config.append(float(line))
 
@@ -15,7 +15,7 @@ NumberOfBases = int(NumberOfBases)
 colors = ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
              for _ in range(NumberOfBases)]
 
-with open("times_train.txt") as f:
+with open("..\\times_train.txt") as f:
     for line in f:
         type, time = line.split()
         if type == "float":
@@ -25,7 +25,7 @@ with open("times_train.txt") as f:
 
 fidelity_float = []
 for i in range(NumberOfBases):
-    with open("fidelity_float_" + str(i) + ".txt") as f:
+    with open("..\\fidelity_float_" + str(i) + ".txt") as f:
         part_fidelity_float = []
         for line in f:
             part_fidelity_float.append(float(line))

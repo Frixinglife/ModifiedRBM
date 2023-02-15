@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import random
 
 config = []
-with open("config.txt") as f:
+with open("..\\config.txt") as f:
     for line in f:
         config.append(float(line))
 
@@ -12,7 +12,7 @@ freq = int(freq)
 N = int(N)
 NumberOfBases = int(NumberOfBases)
 
-with open("times_train.txt") as f:
+with open("..\\times_train.txt") as f:
     for line in f:
         type, time = line.split()
         if type == "float":
@@ -21,7 +21,7 @@ with open("times_train.txt") as f:
             double_time = float(time)
 
 kullbach_leibler_norm_float = []
-with open("kullbach_leibler_norm_float.txt") as f:
+with open("..\\kullbach_leibler_norm_float.txt") as f:
     for line in f:
         kullbach_leibler_norm_float.append(float(line))
 

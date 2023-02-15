@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import random
 
 config = []
-with open("config.txt") as f:
+with open("..\\config.txt") as f:
     for line in f:
         config.append(float(line))
 
@@ -15,7 +15,7 @@ NumberOfBases = int(NumberOfBases)
 colors = ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
              for _ in range(NumberOfBases)]
 
-with open("times_train.txt") as f:
+with open("..\\times_train.txt") as f:
     for line in f:
         type, time = line.split()
         if type == "float":
@@ -23,18 +23,18 @@ with open("times_train.txt") as f:
         elif type == "double":
             double_time = float(time)
 
-kullbach_leibler_norm_double = []
-with open("kullbach_leibler_norm_double.txt") as f:
+kullbach_leibler_norm_float = []
+with open("..\\kullbach_leibler_norm_float.txt") as f:
     for line in f:
-        kullbach_leibler_norm_double.append(float(line))
+        kullbach_leibler_norm_float.append(float(line))
 
-kullbach_leibler_norms_double = []
+kullbach_leibler_norms_float = []
 for i in range(NumberOfBases):
-    with open("kullbach_leibler_norm_double_" + str(i) + ".txt") as f:
-        part_kullbach_leibler_norms_double = []
+    with open("..\\kullbach_leibler_norm_float_" + str(i) + ".txt") as f:
+        part_kullbach_leibler_norms_float = []
         for line in f:
-            part_kullbach_leibler_norms_double.append(float(line))
-        kullbach_leibler_norms_double.append(part_kullbach_leibler_norms_double)
+            part_kullbach_leibler_norms_float.append(float(line))
+        kullbach_leibler_norms_float.append(part_kullbach_leibler_norms_float)
 
 epochs = []
 for i in range(1, num_epochs + 1):
@@ -42,12 +42,12 @@ for i in range(1, num_epochs + 1):
         epochs.append(i)
 
 plt.title('Размер матрицы плотности N = ' + str(N) + ', число базисов - ' + str(NumberOfBases) + 
-    ', время обучения double - ' + str(float_time) + ' с', fontweight = 'bold')
+    ', время обучения float - ' + str(float_time) + ' с', fontweight = 'bold')
 
 plt.yscale('log')
 for i in range(NumberOfBases):
-    plt.plot(epochs, kullbach_leibler_norms_double[i], color = colors[i], linestyle = '-', label = 'Базис ' + str(i + 1))
-plt.plot(epochs, kullbach_leibler_norm_double, 'g--', label = 'По всем базисам')
+    plt.plot(epochs, kullbach_leibler_norms_float[i], color = colors[i], linestyle = '-', label = 'Базис ' + str(i + 1))
+plt.plot(epochs, kullbach_leibler_norm_float, 'g--', label = 'По всем базисам')
 
 plt.grid(True, linestyle='-', color='0.75')
 plt.legend()

@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import random
 
 config = []
-with open("config.txt") as f:
+with open("..\\config.txt") as f:
     for line in f:
         config.append(float(line))
 
@@ -15,7 +15,7 @@ NumberOfBases = int(NumberOfBases)
 colors = ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
              for _ in range(NumberOfBases)]
 
-with open("times_train.txt") as f:
+with open("..\\times_train.txt") as f:
     for line in f:
         type, time = line.split()
         if type == "float":
@@ -24,34 +24,34 @@ with open("times_train.txt") as f:
             double_time = float(time)
 
 data_diag_norm_f = []
-with open("diag_norm_float.txt") as f:
+with open("..\\diag_norm_float.txt") as f:
     for line in f:
         data_diag_norm_f.append(float(line))
 
 # data_diag_norm_d = []
-# with open("diag_norm_double.txt") as f:
+# with open("..\\diag_norm_double.txt") as f:
 #     for line in f:
 #         data_diag_norm_d.append(float(line))
 
 data_eig_norm_f = []
-with open("eig_norm_float.txt") as f:
+with open("..\\eig_norm_float.txt") as f:
     for line in f:
         data_eig_norm_f.append(float(line))
 
 # data_eig_norm_d = []
-# with open("eig_norm_double.txt") as f:
+# with open("..\\eig_norm_double.txt") as f:
 #     for line in f:
 #         data_eig_norm_d.append(float(line))
 
 data_diag_norms_basis_f = []
 data_eig_norms_basis_f = []
 for i in range(NumberOfBases):
-    with open("diag_norm_float_" + str(i) + ".txt") as f:
+    with open("..\\diag_norm_float_" + str(i) + ".txt") as f:
         part_data_diag_norms_basis_f = []
         for line in f:
             part_data_diag_norms_basis_f.append(float(line))
         data_diag_norms_basis_f.append(part_data_diag_norms_basis_f)
-    with open("eig_norm_float_" + str(i) + ".txt") as f:
+    with open("..\\eig_norm_float_" + str(i) + ".txt") as f:
         part_data_eig_norms_basis_f = []
         for line in f:
             part_data_eig_norms_basis_f.append(float(line))

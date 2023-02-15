@@ -112,14 +112,6 @@ void EigenvectorsBasis(MKL_Complex16* RoMatrixRBM, MKL_Complex16* VR, int N) {
 
     zgeev(&jobvl, &jobvr, &N, J, &lda, W, VL, &ldvl, VR, &ldvr, Work, &lwork, rwork, &info);
 
-    //for (int i = 0; i < N; i++) {
-    //    for (int j = i; j < N; j++) {
-    //        MKL_Complex16 Temp = MKL_Complex16(VR[j + i * N].real(), -VR[j + i * N].imag());
-    //        VR[j + i * N] = MKL_Complex16(VR[i + j * N].real(), -VR[i + j * N].imag());
-    //        VR[i + j * N] = Temp;
-    //    }
-    //}
-
     delete[]J;
     delete[]W;
     delete[]VL;
@@ -173,6 +165,73 @@ CRSMatrix* GetUbMatrices(MKL_Complex16* RoMatrixRBM) {
     KroneckerProduct(sigma_z, size, sigma_x, size, Matrices[7]);
     KroneckerProduct(sigma_z, size, sigma_y, size, Matrices[8]);
     KroneckerProduct(sigma_z, size, sigma_z, size, Matrices[9]);
+
+    for (int b = 0; b < B; b++) {
+        UbMatrices[b] = CRSMatrix(N, Matrices[b]);
+    }
+
+    for (int b = 0; b < B; b++) {
+        delete[] Matrices[b];
+    }
+    delete[]Matrices;
+
+    return UbMatrices;
+}
+
+void GetUnitaryMatrix(int seed, int N, MKL_Complex16* A) {
+    const int lda = N;
+    const int N_N = N * N;
+    const int lwork = N;
+    int info;
+    MKL_Complex16* tau = new MKL_Complex16[N];
+    MKL_Complex16* Work = new MKL_Complex16[lwork];
+    double* A_double = new double[N_N];
+
+    VSLStreamStatePtr stream;
+    vslNewStream(&stream, VSL_BRNG_MT19937, seed);
+    vdRngUniform(VSL_RNG_METHOD_UNIFORM_STD, stream, N_N, A_double, 0.0, 1.0);
+    vslDeleteStream(&stream);
+
+    for (int i = 0; i < N_N; i++) {
+        A[i] = MKL_Complex16(A_double[i], 0.0);
+    }
+
+    zgeqrfp(&N, &N, A, &lda, tau, Work, &lwork, &info);
+    zungqr(&N, &N, &N, A, &lda, tau, Work, &lwork, &info);
+
+    delete[] tau;
+    delete[] Work;
+    delete[] A_double;
+}
+
+CRSMatrix* GetUbRandomMatrices(bool check = false) {
+    const int N = 4;
+    const int B = 10;
+    const int N_N = N * N;
+    
+    CRSMatrix* UbMatrices = new CRSMatrix[B];
+    MKL_Complex16** Matrices = new MKL_Complex16*[B];
+    for (int b = 0; b < B; b++) {
+        Matrices[b] = new MKL_Complex16[N_N];
+        GetUnitaryMatrix(42 + b * 3, N, Matrices[b]);
+    }
+
+    if (check) {
+        for (int b = 0; b < B; b++) {
+            TransitionMatrix::PrintMatrix(Matrices[b], N, N, "A");
+            MKL_Complex16* Result = new MKL_Complex16[N_N];
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    Result[j + i * N] = MKL_Complex16(0.0, 0.0);
+                    for (int k = 0; k < N; k++) {
+                        Result[j + i * N] += Matrices[b][k + i * N] * Matrices[b][k + j * N];
+                    }
+                }
+            }
+            TransitionMatrix::PrintMatrix(Result, N, N, "A * A^T");
+            delete[] Result;
+        }
+    }
 
     for (int b = 0; b < B; b++) {
         UbMatrices[b] = CRSMatrix(N, Matrices[b]);
@@ -255,9 +314,11 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
     int N = RBM.FirstModifiedRBM.N_v;
     int NumberOfBases = 10;
 
-    MKL_Complex16* RoMatrixRBM = RBM.GetRoMatrix();
+    /*MKL_Complex16* RoMatrixRBM = RBM.GetRoMatrix();
     CRSMatrix* UbMatrices = GetUbMatrices(RoMatrixRBM);
-    delete[] RoMatrixRBM;
+    delete[] RoMatrixRBM;*/
+
+    CRSMatrix* UbMatrices = GetUbRandomMatrices();
 
     MKL_Complex16** OriginalRoMatrices = new MKL_Complex16* [NumberOfBases];
 
