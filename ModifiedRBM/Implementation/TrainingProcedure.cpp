@@ -57,6 +57,72 @@ double KullbachLeiblerNorm(int N, MKL_Complex16** OriginalRoMatrices, MKL_Comple
     return result;
 }
 
+void GetUnitaryMatrix(int seed, int N, MKL_Complex16* A) {
+    const int lda = N;
+    const int N_N = N * N;
+    const int lwork = N;
+    int info;
+    MKL_Complex16* tau = new MKL_Complex16[N];
+    MKL_Complex16* Work = new MKL_Complex16[lwork];
+    double* A_double = new double[N_N];
+
+    VSLStreamStatePtr stream;
+    vslNewStream(&stream, VSL_BRNG_MT19937, seed);
+    vdRngUniform(VSL_RNG_METHOD_UNIFORM_STD, stream, N_N, A_double, 0.0, 1.0);
+    vslDeleteStream(&stream);
+
+    for (int i = 0; i < N_N; i++) {
+        A[i] = MKL_Complex16(A_double[i], 0.0);
+    }
+
+    zgeqrfp(&N, &N, A, &lda, tau, Work, &lwork, &info);
+    zungqr(&N, &N, &N, A, &lda, tau, Work, &lwork, &info);
+
+    delete[] tau;
+    delete[] Work;
+    delete[] A_double;
+}
+
+CRSMatrix* GetUbRandomMatrices(int N, int NumberOfBases, bool check = false) {
+    const int B = NumberOfBases;
+    const int N_N = N * N;
+
+    CRSMatrix* UbMatrices = new CRSMatrix[B];
+    MKL_Complex16** Matrices = new MKL_Complex16 * [B];
+    for (int b = 0; b < B; b++) {
+        Matrices[b] = new MKL_Complex16[N_N];
+        GetUnitaryMatrix(42 + b * 3, N, Matrices[b]);
+    }
+
+    if (check) {
+        for (int b = 0; b < B; b++) {
+            TransitionMatrix::PrintMatrix(Matrices[b], N, N, "A");
+            MKL_Complex16* Result = new MKL_Complex16[N_N];
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    Result[j + i * N] = MKL_Complex16(0.0, 0.0);
+                    for (int k = 0; k < N; k++) {
+                        Result[j + i * N] += Matrices[b][k + i * N] * Matrices[b][k + j * N];
+                    }
+                }
+            }
+            TransitionMatrix::PrintMatrix(Result, N, N, "A * A^T");
+            delete[] Result;
+        }
+    }
+
+    for (int b = 0; b < B; b++) {
+        UbMatrices[b] = CRSMatrix(N, Matrices[b]);
+    }
+
+    for (int b = 0; b < B; b++) {
+        delete[] Matrices[b];
+    }
+    delete[]Matrices;
+
+    return UbMatrices;
+}
+
 void TrainingProcedure(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMatrix, int NumberOfBases, int NumberOfUnitary, int epochs, acc_number lr, int freq) {
     std::cout << "Starting the training process\n\n";
     std::cout << "Iterations:\n";
@@ -164,6 +230,46 @@ double KullbachLeiblerNorm(int N, MKL_Complex16* OriginalRoMatrix, MKL_Complex16
     return result;
 }
 
+double GetFidelity(int N, MKL_Complex16* OriginalRoMatrix, MKL_Complex16* RoMatrixRBM) {
+    const int N_N = N * N;
+    MKL_Complex16* SqrtRoMatrix = new MKL_Complex16[N_N];
+    MatrixAndVectorOperations::SqrtMatrix(N, RoMatrixRBM, SqrtRoMatrix);
+
+    MKL_Complex16* Intermed = new MKL_Complex16[N_N];
+    MKL_Complex16* Result = new MKL_Complex16[N_N];
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            Intermed[j + i * N] = MKL_Complex16(0.0, 0.0);
+            for (int k = 0; k < N; k++) {
+                Intermed[j + i * N] += SqrtRoMatrix[k + i * N] * OriginalRoMatrix[j + k * N];
+            }
+        }
+    }
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            Result[j + i * N] = MKL_Complex16(0.0, 0.0);
+            for (int k = 0; k < N; k++) {
+                Result[j + i * N] += Intermed[k + i * N] * SqrtRoMatrix[j + k * N];
+            }
+        }
+    }
+
+    MatrixAndVectorOperations::SqrtMatrix(N, Result, Intermed);
+
+    double Trace = 0.0;
+    for (int i = 0; i < N; i++) {
+        Trace += Intermed[i + i * N].real();
+    }
+
+    delete[]Result;
+    delete[]Intermed;
+    delete[]SqrtRoMatrix;
+
+    return Trace;
+}
+
 void TrainingProcedureSeparatelyForBases(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMatrix, int NumberOfBases, 
     int NumberOfUnitary, int epochs, acc_number lr, int freq) {
 
@@ -172,7 +278,8 @@ void TrainingProcedureSeparatelyForBases(NeuralDensityOperators& RBM, MKL_Comple
 
     int N = RBM.FirstModifiedRBM.N_v;
 
-    CRSMatrix* UbMatrices = new CRSMatrix[NumberOfBases];
+    //CRSMatrix* UbMatrices = new CRSMatrix[NumberOfBases];
+    CRSMatrix* UbMatrices = GetUbRandomMatrices(N, NumberOfBases);
     MKL_Complex16** OriginalRoMatrices = new MKL_Complex16*[NumberOfBases];
 
     std::ofstream* fout_kullbach_leibler_norms = new std::ofstream[NumberOfBases];
@@ -190,7 +297,7 @@ void TrainingProcedureSeparatelyForBases(NeuralDensityOperators& RBM, MKL_Comple
 
     for (int b = 0; b < NumberOfBases; b++) {
         TransitionMatrix TM(30);
-        UbMatrices[b] = TM.GetCRSTransitionMatrix(N, NumberOfUnitary, b);
+        //UbMatrices[b] = TM.GetCRSTransitionMatrix(N, NumberOfUnitary, b);
         OriginalRoMatrices[b] = TransitionMatrix::GetNewRoMatrix(OriginalRoMatrix, UbMatrices[b], N);
 
         fout_kullbach_leibler_norms[b] = std::ofstream("..\\Results\\kullbach_leibler_norm_" 
@@ -232,6 +339,11 @@ void TrainingProcedureSeparatelyForBases(NeuralDensityOperators& RBM, MKL_Comple
         }
     }
 
+    TransitionMatrix::PrintMatrix(OriginalRoMatrix, N, N, "Ro original");
+    MKL_Complex16* RoMatrix = RBM.GetRoMatrix();
+    TransitionMatrix::PrintMatrix(RoMatrix, N, N, "Ro RBM");
+    delete[]RoMatrix;
+
     auto diff = std::chrono::high_resolution_clock::now() - start;
 
     fout_kullbach_leibler_norm.close();
@@ -262,6 +374,7 @@ void TrainingProcedureSeparatelyForBases(NeuralDensityOperators& RBM, MKL_Comple
     std::cout << "\nMatrix size: " << N << " x " << N << "\n";
     std::cout << "Data type: " << TYPE_OUT << "\n";
     std::cout << "Time: " << work_time << " s\n";
+    std::cout << "Fidelity: " << GetFidelity(N, OriginalRoMatrix, RBM.GetRoMatrix()) << "\n";
 
     delete[]fout_kullbach_leibler_norms;
     delete[]fout_diag_norms;
