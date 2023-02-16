@@ -20,8 +20,8 @@ int main() {
     double alpha = 1.0;
     int N_h = 1;
     int N_a = 2;
-    acc_number lr = (acc_number)1e-2;
-    int epochs = 1000;
+    acc_number lr = (acc_number)1e-1;
+    int epochs = 10000;
     int freq = 2;
 
     BellStateReconstructionExperiment(alpha, N_h, N_a, epochs, lr, freq);

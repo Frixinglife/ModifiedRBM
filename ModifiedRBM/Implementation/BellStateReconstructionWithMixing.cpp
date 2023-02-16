@@ -312,7 +312,7 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
     std::cout << "Iterations:\n";
 
     int N = RBM.FirstModifiedRBM.N_v;
-    int NumberOfBases = 9;
+    int NumberOfBases = 8;
 
     /*MKL_Complex16* RoMatrixRBM = RBM.GetRoMatrix();
     CRSMatrix* UbMatrices = GetUbMatrices(RoMatrixRBM);
@@ -448,11 +448,15 @@ void BellStateReconstructionWithMixingForAllBasis(NeuralDensityOperators& RBM, M
 
     int N = RBM.FirstModifiedRBM.N_v;
 
-    MKL_Complex16* RoMatrixRBM = RBM.GetRoMatrix();
-    CRSMatrix* UbMatrices = GetUbMatrices();
-    delete[] RoMatrixRBM;
+    //MKL_Complex16* RoMatrixRBM = RBM.GetRoMatrix();
+    //CRSMatrix* UbMatrices = GetUbMatrices();
+    //delete[] RoMatrixRBM;
 
-    int NumberOfBases = 9;
+    int NumberOfBases = 8;
+    CRSMatrix* UbMatrices = GetUbRandomMatrices(NumberOfBases);
+
+    std::ofstream fout_kullbach_leibler_norm("..\\Results\\kullbach_leibler_norm_"
+        + std::string(TYPE_OUT) + ".txt", std::ios_base::out | std::ios_base::trunc);
 
     MKL_Complex16** OriginalRoMatrices = new MKL_Complex16 * [NumberOfBases];
 
@@ -467,6 +471,8 @@ void BellStateReconstructionWithMixingForAllBasis(NeuralDensityOperators& RBM, M
 
         std::cout << l << " / " << epochs << " \n";
 
+        fout_kullbach_leibler_norm << KullbachLeiblerNorm(N, OriginalRoMatrices, RoMatrix, NumberOfBases, UbMatrices) << "\n";
+
         RBM.WeightMatricesUpdate(N, OriginalRoMatrices, RoMatrix, NumberOfBases, UbMatrices, lr);
         delete[]RoMatrix;
     }
@@ -474,6 +480,20 @@ void BellStateReconstructionWithMixingForAllBasis(NeuralDensityOperators& RBM, M
     auto diff = std::chrono::high_resolution_clock::now() - start;
 
     double work_time = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(diff).count()) / 1000.0;
+
+    fout_kullbach_leibler_norm.close();
+
+    std::ofstream fout_config("..\\Results\\config.txt", std::ios_base::out | std::ios_base::trunc);
+    fout_config << epochs << "\n";
+    fout_config << freq << "\n";
+    fout_config << work_time << "\n";
+    fout_config << N << "\n";
+    fout_config << NumberOfBases << "\n";
+    fout_config.close();
+
+    std::ofstream fout_times("..\\Results\\times_train.txt", std::ios_base::app);
+    fout_times << TYPE_OUT << " " << work_time << "\n";
+    fout_times.close();
 
     std::cout << "\nFinishing the training process\n";
     std::cout << "\nMatrix size: " << N << " x " << N << "\n";

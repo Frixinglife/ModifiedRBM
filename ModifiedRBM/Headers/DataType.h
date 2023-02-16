@@ -7,6 +7,7 @@
 	#define TComplex MKL_Complex16
 	#define acc_number double
 	#define TRngUniform vdRngUniform
+	#define TRngGaussian vdRngGaussian
 	#define Tcblas_v cblas_dgemv
 	#define MATRIX_OUT "..\\Results\\matrix_diag_double.txt"
 	#define TYPE_OUT "double"
@@ -15,6 +16,7 @@
 	#define TComplex MKL_Complex8
 	#define acc_number float
 	#define TRngUniform vsRngUniform
+	#define TRngGaussian vsRngGaussian
 	#define Tcblas_v cblas_sgemv
 	#define MATRIX_OUT "..\\Results\\matrix_diag_float.txt"
 	#define TYPE_OUT "float"

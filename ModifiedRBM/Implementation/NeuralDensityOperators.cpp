@@ -1819,12 +1819,20 @@ TComplex* NeuralDensityOperators::GetGradLambdaMu(int N, MKL_Complex16* Original
         }
 
         acc_number* LocalResult = WeightSumRo(N, Ro, Variable);
+        acc_number* Noise = new acc_number[size];
+
+        VSLStreamStatePtr stream;
+        vslNewStream(&stream, VSL_BRNG_MT19937, 42 + 42 * Variable);
+        TRngGaussian(VSL_RNG_METHOD_GAUSSIAN_ICDF, stream, size, Noise, 0.0, 1e-3);
+        vslDeleteStream(&stream);
 
         for (int ind = 0; ind < size; ind++) {
             Result[ind] += TComplex(LocalResult[ind], ZERO);
+            Result[ind] += TComplex(Noise[ind], ZERO);
         }
 
         delete[] LocalResult;
+        delete[] Noise;
     }
 
     return Result;
