@@ -395,9 +395,9 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
             delete[]RoMatrix;
         }
     }
-
+    TransitionMatrix::PrintMatrix(OriginalRoMatrix, N, N, "Original Ro");
     MKL_Complex16* RoMatrix = RBM.GetRoMatrix();
-    TransitionMatrix::PrintMatrix(RoMatrix, N, N, "Ro");
+    TransitionMatrix::PrintMatrix(RoMatrix, N, N, "Ro RBM");
     delete[]RoMatrix;
 
     auto diff = std::chrono::high_resolution_clock::now() - start;
