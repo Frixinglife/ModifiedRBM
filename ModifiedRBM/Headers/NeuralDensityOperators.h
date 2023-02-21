@@ -9,9 +9,10 @@
 class NeuralDensityOperators {
 public:
     ModifiedRBM FirstModifiedRBM, SecondModifiedRBM;
+    VSLStreamStatePtr stream;
 
     NeuralDensityOperators(int N_v, int N_h, int N_a, int seed = 42, std::string type = "random");
-    ~NeuralDensityOperators() {};
+    ~NeuralDensityOperators() { vslDeleteStream(&stream); };
 
     void PrintRBMs() const;
 

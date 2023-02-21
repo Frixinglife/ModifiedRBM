@@ -11,7 +11,7 @@ void BellStateReconstructionExperiment(double alpha, int N_h, int N_a, int epoch
 
 	acc_number* random_numbers = new acc_number[N_v];
 	VSLStreamStatePtr stream;
-	vslNewStream(&stream, VSL_BRNG_MT19937, 16);
+	vslNewStream(&stream, VSL_BRNG_MT19937, 42);
 	TRngUniform(VSL_RNG_METHOD_UNIFORM_STD, stream, N_v, random_numbers, 0.0, 1.0);
 	vslDeleteStream(&stream);
 	acc_number sum = (acc_number)0.0;

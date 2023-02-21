@@ -13,6 +13,8 @@ acc_number HALF = (acc_number)0.5;
 acc_number ZERO = (acc_number)0.0;
 
 NeuralDensityOperators::NeuralDensityOperators(int N_v, int N_h, int N_a, int seed, std::string type) {
+    vslNewStream(&stream, VSL_BRNG_MT19937, 42 + seed);
+
     const int N_h_N_v = N_h * N_v;
     const int N_a_N_v = N_a * N_v;
 
@@ -1820,11 +1822,8 @@ TComplex* NeuralDensityOperators::GetGradLambdaMu(int N, MKL_Complex16* Original
 
         acc_number* LocalResult = WeightSumRo(N, Ro, Variable);
         acc_number* Noise = new acc_number[size];
-
-        VSLStreamStatePtr stream;
-        vslNewStream(&stream, VSL_BRNG_MT19937, 42 + 42 * Variable);
+        
         TRngGaussian(VSL_RNG_METHOD_GAUSSIAN_ICDF, stream, size, Noise, 0.0, 1e-3);
-        vslDeleteStream(&stream);
 
         for (int ind = 0; ind < size; ind++) {
             Result[ind] += TComplex(LocalResult[ind], ZERO);
