@@ -13,7 +13,7 @@ int main() {
     //int NumberOfBases = 8;
     //int NumberOfUnitary = 1;
     //acc_number lr = (acc_number)1e-2;
-    //int epochs = 10000;
+    //int epochs = 1000;
     //int freq = 2;
 
     //TrainingExperimentSeparatelyForBases(N_v, N_h, N_a, NumberOfBases, NumberOfUnitary, epochs, lr, freq);
