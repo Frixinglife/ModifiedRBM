@@ -13,7 +13,8 @@ acc_number HALF = (acc_number)0.5;
 acc_number ZERO = (acc_number)0.0;
 
 NeuralDensityOperators::NeuralDensityOperators(int N_v, int N_h, int N_a, int seed, std::string type) {
-    vslNewStream(&stream, VSL_BRNG_MT19937, 42 + seed);
+    vslNewStream(&stream_noise, VSL_BRNG_MT19937, 42 + seed);
+    vslNewStream(&stream_stochastic, VSL_BRNG_MT19937, 18 + seed);
 
     const int N_h_N_v = N_h * N_v;
     const int N_a_N_v = N_a * N_v;
@@ -786,8 +787,24 @@ TComplex* NeuralDensityOperators::WeightSumLambdaMu(int N, MKL_Complex16** Origi
         Result[i] = TComplex(ZERO, ZERO);
     }
 
+    int Random_size = (8 * N) / 10;
+    int* Random_choice = new int[Random_size];
+    int* All_choice = new int[N];
+
     for (int b = 0; b < NumberOfBases; b++) {
-        for (int i_n = 0; i_n < N; i_n++) {
+        for (int i = 0; i < N; i++) {
+            All_choice[i] = i;
+        }
+        int Curr_size = N, Random_ind = 0;
+        for (int i = 0; i < Random_size; i++) {
+            viRngUniform(VSL_RNG_METHOD_UNIFORM_STD, stream_stochastic, 1, &Random_ind, 0, Curr_size);
+            Random_choice[i] = All_choice[Random_ind];
+            std::swap(All_choice[Random_ind], All_choice[Curr_size - 1]);
+            Curr_size--;
+        }
+
+        for (int i_rand = 0; i_rand < Random_size; i_rand++) {
+            int i_n = Random_choice[i_rand];
             TComplex Sum(ZERO, ZERO);
             for (int i = UbMatrices[b].rowPtr[i_n]; i < UbMatrices[b].rowPtr[i_n + 1]; i++) {
                 for (int j = UbMatrices[b].rowPtr[i_n]; j < UbMatrices[b].rowPtr[i_n + 1]; j++) {
@@ -1213,6 +1230,9 @@ TComplex* NeuralDensityOperators::WeightSumLambdaMu(int N, MKL_Complex16** Origi
         }
     }
 
+    delete[] Random_choice;
+    delete[] All_choice;
+
     return Result;
 }
 
@@ -1250,7 +1270,7 @@ TComplex* NeuralDensityOperators::GetGradLambdaMu(int N, MKL_Complex16** Origina
         acc_number* LocalResult = WeightSumRo(N, Ro, Variable);
         acc_number * Noise = new acc_number[size];
 
-        TRngGaussian(VSL_RNG_METHOD_GAUSSIAN_ICDF, stream, size, Noise, 0.0, 1e-3);
+        TRngGaussian(VSL_RNG_METHOD_GAUSSIAN_ICDF, stream_noise, size, Noise, 0.0, 1e-3);
 
         for (int ind = 0; ind < size; ind++) {
             Result[ind] += TComplex(LocalResult[ind], ZERO);
@@ -1366,7 +1386,23 @@ TComplex* NeuralDensityOperators::WeightSumLambdaMu(int N, MKL_Complex16* Origin
         Result[i] = TComplex(ZERO, ZERO);
     }
 
-    for (int i_n = 0; i_n < N; i_n++) {
+    int* All_choice = new int[N];
+    for (int i = 0; i < N; i++) {
+        All_choice[i] = i;
+    }
+
+    int Random_size = (8 * N) / 10;
+    int* Random_choice = new int [Random_size];
+    int Curr_size = N, Random_ind = 0;
+    for (int i = 0; i < Random_size; i++) {
+        viRngUniform(VSL_RNG_METHOD_UNIFORM_STD, stream_stochastic, 1, &Random_ind, 0, Curr_size);
+        Random_choice[i] = All_choice[Random_ind];
+        std::swap(All_choice[Random_ind], All_choice[Curr_size - 1]);
+        Curr_size--;
+    }
+
+    for (int i_rand = 0; i_rand < Random_size; i_rand++) {
+        int i_n = Random_choice[i_rand];
         TComplex Sum(ZERO, ZERO);
         for (int i = UbMatrix->rowPtr[i_n]; i < UbMatrix->rowPtr[i_n + 1]; i++) {
             for (int j = UbMatrix->rowPtr[i_n]; j < UbMatrix->rowPtr[i_n + 1]; j++) {
@@ -1791,6 +1827,9 @@ TComplex* NeuralDensityOperators::WeightSumLambdaMu(int N, MKL_Complex16* Origin
         delete[] LocalResult;
     }
 
+    delete[] Random_choice;
+    delete[] All_choice;
+
     return Result;
 }
 
@@ -1828,7 +1867,7 @@ TComplex* NeuralDensityOperators::GetGradLambdaMu(int N, MKL_Complex16* Original
         acc_number* LocalResult = WeightSumRo(N, Ro, Variable);
         acc_number* Noise = new acc_number[size];
         
-        TRngGaussian(VSL_RNG_METHOD_GAUSSIAN_ICDF, stream, size, Noise, 0.0, 1e-3);
+        TRngGaussian(VSL_RNG_METHOD_GAUSSIAN_ICDF, stream_noise, size, Noise, 0.0, 1e-3);
 
         for (int ind = 0; ind < size; ind++) {
             Result[ind] += TComplex(LocalResult[ind], ZERO);
