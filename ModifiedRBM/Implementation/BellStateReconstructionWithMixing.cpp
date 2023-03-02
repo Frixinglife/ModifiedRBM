@@ -395,12 +395,13 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
             delete[]RoMatrix;
         }
     }
+
+    auto diff = std::chrono::high_resolution_clock::now() - start;
+
     TransitionMatrix::PrintMatrix(OriginalRoMatrix, N, N, "Original Ro");
     MKL_Complex16* RoMatrix = RBM.GetRoMatrix();
     TransitionMatrix::PrintMatrix(RoMatrix, N, N, "Ro RBM");
     delete[]RoMatrix;
-
-    auto diff = std::chrono::high_resolution_clock::now() - start;
 
     fout_diag_norm.close();
     fout_eig_norm.close();
@@ -449,7 +450,7 @@ void BellStateReconstructionWithMixingForAllBasis(NeuralDensityOperators& RBM, M
     int N = RBM.FirstModifiedRBM.N_v;
 
     //MKL_Complex16* RoMatrixRBM = RBM.GetRoMatrix();
-    //CRSMatrix* UbMatrices = GetUbMatrices();
+    //CRSMatrix* UbMatrices = GetUbMatrices(RoMatrixRBM);
     //delete[] RoMatrixRBM;
 
     int NumberOfBases = 8;
@@ -478,6 +479,11 @@ void BellStateReconstructionWithMixingForAllBasis(NeuralDensityOperators& RBM, M
     }
 
     auto diff = std::chrono::high_resolution_clock::now() - start;
+
+    TransitionMatrix::PrintMatrix(OriginalRoMatrix, N, N, "Original Ro");
+    MKL_Complex16* RoMatrix = RBM.GetRoMatrix();
+    TransitionMatrix::PrintMatrix(RoMatrix, N, N, "Ro RBM");
+    delete[]RoMatrix;
 
     double work_time = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(diff).count()) / 1000.0;
 

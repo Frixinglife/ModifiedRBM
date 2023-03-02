@@ -15,9 +15,9 @@ public:
     static void MultVectorByNumberInPlace(int N, acc_number* Vec, acc_number Number);
     static void MultVectorByNumberInPlace(int N, TComplex* Vec, TComplex Number);
     static void MultMatrixByNumberInPlace(int N, int M, acc_number* Matrix, acc_number Number);
+    static void MultMatrixByNumberInPlace(int N, int M, TComplex* Matrix, TComplex Number);
     static void MatrixAdd(int N, int M, acc_number* FirstMatrix, acc_number* SecondMatrix, acc_number* Result);
     static void MatrixSub(int N, int M, acc_number* FirstMatrix, acc_number* SecondMatrix, acc_number* Result);
-    static void MultMatrixByNumberInPlace(int N, int M, TComplex* Matrix, TComplex Number);
     static void MatrixAdd(int N, int M, TComplex* FirstMatrix, TComplex* SecondMatrix, TComplex* Result);
     static void MatrixSub(int N, int M, TComplex* FirstMatrix, TComplex* SecondMatrix, TComplex* Result);
     static void MatrixVectorMult(int N, int M, acc_number* Matrix, acc_number* Vec, acc_number* Result);

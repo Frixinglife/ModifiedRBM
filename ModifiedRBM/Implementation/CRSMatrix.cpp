@@ -5,6 +5,9 @@
 CRSMatrix::CRSMatrix(int _n, int _nz) {
     n = _n;
     nz = _nz;
+    val = nullptr;
+    colIndex = nullptr;
+    rowPtr = nullptr;
 
     if (n != 0 && nz != 0) {
         val = new MKL_Complex16[nz];

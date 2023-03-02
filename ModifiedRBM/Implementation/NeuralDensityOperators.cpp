@@ -787,7 +787,7 @@ TComplex* NeuralDensityOperators::WeightSumLambdaMu(int N, MKL_Complex16** Origi
         Result[i] = TComplex(ZERO, ZERO);
     }
 
-    int Random_size = (8 * N) / 10;
+    int Random_size = (3 * N) / 4;
     int* Random_choice = new int[Random_size];
     int* All_choice = new int[N];
 
@@ -1391,7 +1391,7 @@ TComplex* NeuralDensityOperators::WeightSumLambdaMu(int N, MKL_Complex16* Origin
         All_choice[i] = i;
     }
 
-    int Random_size = (8 * N) / 10;
+    int Random_size = (3 * N) / 4;
     int* Random_choice = new int [Random_size];
     int Curr_size = N, Random_ind = 0;
     for (int i = 0; i < Random_size; i++) {
