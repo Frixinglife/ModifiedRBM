@@ -8,6 +8,8 @@
 #include <cmath>
 #include "omp.h"
 
+#define STOCHASTIC_COEF 0.25
+
 acc_number ONE = (acc_number)1.0;
 acc_number HALF = (acc_number)0.5;
 acc_number ZERO = (acc_number)0.0;
@@ -787,7 +789,7 @@ TComplex* NeuralDensityOperators::WeightSumLambdaMu(int N, MKL_Complex16** Origi
         Result[i] = TComplex(ZERO, ZERO);
     }
 
-    int Random_size = (3 * N) / 4;
+    int Random_size = (int)(STOCHASTIC_COEF * N);
     int* Random_choice = new int[Random_size];
     int* All_choice = new int[N];
 
@@ -1391,7 +1393,7 @@ TComplex* NeuralDensityOperators::WeightSumLambdaMu(int N, MKL_Complex16* Origin
         All_choice[i] = i;
     }
 
-    int Random_size = (3 * N) / 4;
+    int Random_size = (int)(STOCHASTIC_COEF * N);
     int* Random_choice = new int [Random_size];
     int Curr_size = N, Random_ind = 0;
     for (int i = 0; i < Random_size; i++) {
@@ -1400,6 +1402,11 @@ TComplex* NeuralDensityOperators::WeightSumLambdaMu(int N, MKL_Complex16* Origin
         std::swap(All_choice[Random_ind], All_choice[Curr_size - 1]);
         Curr_size--;
     }
+
+    //for (int i = 0; i < Random_size; i++) {
+    //    std::cout << Random_choice[i] << " ";
+    //}
+    //std::cout << "\n";
 
     for (int i_rand = 0; i_rand < Random_size; i_rand++) {
         int i_n = Random_choice[i_rand];
