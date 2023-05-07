@@ -307,12 +307,13 @@ double MaxEigDiffMarix(int N, MKL_Complex16* OriginalRoMatrix, MKL_Complex16* Ro
     return MaxLambda;
 }
 
-void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMatrix, double alpha, int epochs, acc_number lr, int freq) {
+void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMatrix, double alpha, int NumberOfBases, 
+    int epochs, acc_number lr, int freq) {
+
     std::cout << "Starting the training process\n\n";
     std::cout << "Iterations:\n";
 
     int N = RBM.ModifiedRBM.N_v;
-    int NumberOfBases = 8;
 
     /*MKL_Complex16* RoMatrixRBM = RBM.GetRoMatrix();
     CRSMatrix* UbMatrices = GetUbMatrices(RoMatrixRBM);
@@ -442,7 +443,7 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
 }
 
 void BellStateReconstructionWithMixingForAllBasis(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMatrix, 
-    double alpha, int epochs, acc_number lr, int freq) {
+    double alpha, int NumberOfBases, int epochs, acc_number lr, int freq) {
 
     std::cout << "Starting the training process\n\n";
     std::cout << "Iterations:\n";
@@ -453,7 +454,6 @@ void BellStateReconstructionWithMixingForAllBasis(NeuralDensityOperators& RBM, M
     //CRSMatrix* UbMatrices = GetUbMatrices(RoMatrixRBM);
     //delete[] RoMatrixRBM;
 
-    int NumberOfBases = 8;
     CRSMatrix* UbMatrices = GetUbRandomMatrices(NumberOfBases);
 
     std::ofstream fout_kullbach_leibler_norm("..\\Results\\kullbach_leibler_norm_"
