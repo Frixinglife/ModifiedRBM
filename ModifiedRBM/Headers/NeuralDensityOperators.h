@@ -8,13 +8,13 @@
 
 class NeuralDensityOperators {
 public:
-    ModifiedRBM FirstModifiedRBM, SecondModifiedRBM;
+    ModifiedRBM ModifiedRBM;
     VSLStreamStatePtr stream_noise, stream_stochastic;
 
     NeuralDensityOperators(int N_v, int N_h, int N_a, int seed = 42, std::string type = "random");
     ~NeuralDensityOperators() { vslDeleteStream(&stream_noise); vslDeleteStream(&stream_stochastic); };
 
-    void PrintRBMs() const;
+    void PrintRBM() const;
 
     double GetGamma(int N, acc_number* FirstSigma, acc_number* SecondSigma, char PlusOrMinus);
     MKL_Complex16 GetPi(int N, acc_number* FirstSigma, acc_number* SecondSigma);

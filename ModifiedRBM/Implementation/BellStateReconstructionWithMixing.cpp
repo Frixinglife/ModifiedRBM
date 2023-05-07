@@ -311,7 +311,7 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
     std::cout << "Starting the training process\n\n";
     std::cout << "Iterations:\n";
 
-    int N = RBM.FirstModifiedRBM.N_v;
+    int N = RBM.ModifiedRBM.N_v;
     int NumberOfBases = 8;
 
     /*MKL_Complex16* RoMatrixRBM = RBM.GetRoMatrix();
@@ -447,7 +447,7 @@ void BellStateReconstructionWithMixingForAllBasis(NeuralDensityOperators& RBM, M
     std::cout << "Starting the training process\n\n";
     std::cout << "Iterations:\n";
 
-    int N = RBM.FirstModifiedRBM.N_v;
+    int N = RBM.ModifiedRBM.N_v;
 
     //MKL_Complex16* RoMatrixRBM = RBM.GetRoMatrix();
     //CRSMatrix* UbMatrices = GetUbMatrices(RoMatrixRBM);

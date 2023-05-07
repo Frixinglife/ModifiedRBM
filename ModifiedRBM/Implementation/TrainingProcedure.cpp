@@ -179,7 +179,7 @@ void TrainingProcedure(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMat
     std::cout << "Starting the training process\n\n";
     std::cout << "Iterations:\n";
 
-    int N = RBM.FirstModifiedRBM.N_v;
+    int N = RBM.ModifiedRBM.N_v;
 
     //CRSMatrix* UbMatrices = new CRSMatrix[NumberOfBases];
     CRSMatrix* UbMatrices = GetUbRandomMatrices(N, NumberOfBases);
@@ -283,7 +283,7 @@ void TrainingProcedureSeparatelyForBases(NeuralDensityOperators& RBM, MKL_Comple
     std::cout << "Starting the training process\n\n";
     std::cout << "Iterations:\n";
 
-    int N = RBM.FirstModifiedRBM.N_v;
+    int N = RBM.ModifiedRBM.N_v;
 
     //CRSMatrix* UbMatrices = new CRSMatrix[NumberOfBases];
     CRSMatrix* UbMatrices = GetUbRandomMatrices(N, NumberOfBases);

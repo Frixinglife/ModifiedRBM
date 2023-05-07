@@ -5,7 +5,7 @@
 
 void GetTransitionMatrixAndNewRoCRS(int N, bool show) {
     NeuralDensityOperators DensityOperators(N, N, N);
-    DensityOperators.PrintRBMs();
+    DensityOperators.PrintRBM();
 
     MKL_Complex16* RoMatrix = DensityOperators.GetRoMatrix();
     TransitionMatrix::PrintMatrix(RoMatrix, N, N, "Ro matrix");

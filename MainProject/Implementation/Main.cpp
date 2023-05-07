@@ -7,10 +7,10 @@
 
 int main() {
     int N_v, N_h, N_a;
-    N_v = 16;
+    N_v = 32;
     N_h = 1;
     N_a = 1;
-    int NumberOfBases = 8;
+    int NumberOfBases = 4;
     int NumberOfUnitary = 1;
     acc_number lr = (acc_number)1e-2;
     int epochs = 10000;

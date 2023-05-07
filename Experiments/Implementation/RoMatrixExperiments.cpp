@@ -8,7 +8,7 @@
 void GetRoMatrixAndEig(int N_v, int N_h, int N_a, bool plot, std::string type) {
     NeuralDensityOperators DensityOperators(N_v, N_h, N_a, 42, type);
 
-    DensityOperators.PrintRBMs();
+    DensityOperators.PrintRBM();
 
     MKL_Complex16* RoMatrix = DensityOperators.GetRoMatrix(nullptr, plot);
     TransitionMatrix::PrintMatrix(RoMatrix, N_v, N_v, "Ro matrix");
