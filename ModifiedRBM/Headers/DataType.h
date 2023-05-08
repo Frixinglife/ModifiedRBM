@@ -9,7 +9,7 @@
 	#define TRngUniform vdRngUniform
 	#define TRngGaussian vdRngGaussian
 	#define Tcblas_v cblas_dgemv
-	#define MATRIX_OUT "..\\Results\\matrix_diag_double.txt"
+	#define MATRIX_OUT "..\\Results\\double\\matrix_diag.txt"
 	#define TYPE_OUT "double"
 #else
 #ifdef ACC_FLOAT
@@ -18,7 +18,7 @@
 	#define TRngUniform vsRngUniform
 	#define TRngGaussian vsRngGaussian
 	#define Tcblas_v cblas_sgemv
-	#define MATRIX_OUT "..\\Results\\matrix_diag_float.txt"
+	#define MATRIX_OUT "..\\Results\\float\\matrix_diag.txt"
 	#define TYPE_OUT "float"
 #endif
 #endif

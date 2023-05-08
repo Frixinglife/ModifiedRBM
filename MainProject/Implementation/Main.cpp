@@ -6,29 +6,20 @@
 #include "TrainingExperiments.h"
 
 int main() {
-    //int N_v, N_h, N_a;
-    //N_v = 32;
-    //N_h = 1;
-    //N_a = 1;
-    //int NumberOfBases = 4;
-    //int NumberOfUnitary = 1;
-    //acc_number lr = (acc_number)1e-2;
-    //int epochs = 10000;
-    //int freq = 2;
-
-    //TrainingExperiment(N_v, N_h, N_a, NumberOfBases, NumberOfUnitary, epochs, lr, freq);
-    //TrainingExperimentSeparatelyForBases(N_v, N_h, N_a, NumberOfBases, NumberOfUnitary, epochs, lr, freq);
- 
-    double alpha = 1.0;
-    int N_h = 1;
-    int N_a = 1;
+    int N_v, N_h, N_a;
+    N_v = 4;
+    N_h = 1;
+    N_a = 1;
     int NumberOfBases = 4;
+    int NumberOfUnitary = 1;
     acc_number lr = (acc_number)1e-2;
-    int epochs = 20000;
+    int epochs = 10000;
     int freq = 2;
 
-    //BellStateReconstructionExperiment(alpha, N_h, N_a, NumberOfBases, epochs, lr, freq);
-    BellStateReconstructionExperimentForAllBasis(alpha, N_h, N_a, NumberOfBases, epochs, lr, freq);
+    TrainingExperiment(N_v, N_h, N_a, NumberOfBases, NumberOfUnitary, epochs, lr, freq);
+
+    //double alpha = 1.0;
+    //BellStateReconstructionExperimentForAllBasis(alpha, N_h, N_a, NumberOfBases, epochs, lr, freq);
 
     return 0;
 }

@@ -22,9 +22,9 @@ public:
     void ShowUnitaryMatrices(MKL_Complex16* Matrices, int NumberOfU);
     void KroneckerProduction(MKL_Complex16* Matrix_A, int size_A, MKL_Complex16* Matrix_B, int size_B,
         MKL_Complex16* Matrix_Res, bool show = false);
+    static MKL_Complex16* GetHermitianConjugateMatrix(MKL_Complex16* Matrix, int N);
 
     MKL_Complex16* GetTransitionMatrix(int N, int NumberOfUnitary = 1, int IndexUnitary = 0, bool show = false);
-    static MKL_Complex16* GetHermitianConjugateMatrix(MKL_Complex16* Matrix, int N);
     static MKL_Complex16* GetNewRoMatrix(MKL_Complex16* Ro, MKL_Complex16* Ub, MKL_Complex16* Ub_t, int N);
 
     CRSMatrix GetCRSTransitionMatrix(int N, int NumberOfUnitary = 1, int IndexUnitary = 0, bool show = false);

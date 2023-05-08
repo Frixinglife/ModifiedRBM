@@ -29,7 +29,7 @@ void TrainingExperiment(int N_v, int N_h, int N_a, int NumberOfBases, int Number
 	NeuralDensityOperators RBM(N_v, N_h, N_a, 555, "identity");
 
 	NeuralDensityOperators SupportRBM(N_v, N_h, N_a, 777);
-	MKL_Complex16* OriginalRoMatrix = SupportRBM.GetRoMatrix(nullptr, true);
+	MKL_Complex16* OriginalRoMatrix = SupportRBM.GetRoMatrix(nullptr, false);
 
 	TrainingProcedure(RBM, OriginalRoMatrix, NumberOfBases, NumberOfUnitary, epochs, lr, freq);
 }
@@ -38,7 +38,7 @@ void TrainingExperimentSeparatelyForBases(int N_v, int N_h, int N_a, int NumberO
 	NeuralDensityOperators RBM(N_v, N_h, N_a, 555, "identity");
 
 	NeuralDensityOperators SupportRBM(N_v, N_h, N_a, 777);
-	MKL_Complex16* OriginalRoMatrix = SupportRBM.GetRoMatrix(nullptr, true);
+	MKL_Complex16* OriginalRoMatrix = SupportRBM.GetRoMatrix(nullptr, false);
 
 	TrainingProcedureSeparatelyForBases(RBM, OriginalRoMatrix, NumberOfBases, NumberOfUnitary, epochs, lr, freq);
 }
