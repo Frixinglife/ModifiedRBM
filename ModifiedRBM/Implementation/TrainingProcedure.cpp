@@ -185,9 +185,15 @@ void TrainingProcedure(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMat
 
     MKL_Complex16** OriginalRoMatrices = new MKL_Complex16*[NumberOfBases];
 
-    std::ofstream fout_diag_norm("..\\Results\\" + std::string(TYPE_OUT) + "\\diag_norm.txt", std::ios_base::out | std::ios_base::trunc);
-    std::ofstream fout_eig_norm("..\\Results\\" + std::string(TYPE_OUT) + "\\eig_norm.txt", std::ios_base::out | std::ios_base::trunc);
+    std::ofstream fout_diag_norm("..\\Results\\" + std::string(TYPE_OUT) + "\\diag_norm.txt",
+        std::ios_base::out | std::ios_base::trunc);
+    std::ofstream fout_eig_norm("..\\Results\\" + std::string(TYPE_OUT) + "\\eig_norm.txt", 
+        std::ios_base::out | std::ios_base::trunc);
     std::ofstream fout_kullbach_leibler_norm("..\\Results\\" + std::string(TYPE_OUT) + "\\kullbach_leibler_norm.txt",
+        std::ios_base::out | std::ios_base::trunc);
+    std::ofstream fout_orig_ro_diag("..\\Results\\" + std::string(TYPE_OUT) + "\\orig_ro_diag.txt",
+        std::ios_base::out | std::ios_base::trunc);
+    std::ofstream fout_rbm_ro_diag("..\\Results\\" + std::string(TYPE_OUT) + "\\rbm_ro_diag.txt",
         std::ios_base::out | std::ios_base::trunc);
 
     //std::ofstream* fout_diag_norms = new std::ofstream[NumberOfBases];
@@ -230,14 +236,21 @@ void TrainingProcedure(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMat
 
     auto diff = std::chrono::high_resolution_clock::now() - start;
 
+    MKL_Complex16* RoMatrix = RBM.GetRoMatrix();
     //TransitionMatrix::PrintMatrix(OriginalRoMatrix, N, N, "Ro original");
-    //MKL_Complex16* RoMatrix = RBM.GetRoMatrix();
     //TransitionMatrix::PrintMatrix(RoMatrix, N, N, "Ro RBM");
-    //delete[]RoMatrix;
+    for (int i = 0; i < N; i++) {
+        fout_orig_ro_diag << OriginalRoMatrix[i + i * N].real() << "\n";
+        fout_rbm_ro_diag << RoMatrix[i + i * N].real() << "\n";
+    }
+    delete[]RoMatrix;
 
     fout_kullbach_leibler_norm.close();
     fout_diag_norm.close();
     fout_eig_norm.close();
+    fout_orig_ro_diag.close();
+    fout_rbm_ro_diag.close();
+
     //for (int b = 0; b < NumberOfBases; b++) {
     //    fout_diag_norms[b].close();
     //    fout_eig_norms[b].close();
@@ -283,11 +296,13 @@ void TrainingProcedureSeparatelyForBases(NeuralDensityOperators& RBM, MKL_Comple
 
     std::ofstream fout_diag_norm("..\\Results\\" + std::string(TYPE_OUT) + "\\diag_norm.txt", 
         std::ios_base::out | std::ios_base::trunc);
-
     std::ofstream fout_eig_norm("..\\Results\\" + std::string(TYPE_OUT) + "\\eig_norm.txt", 
         std::ios_base::out | std::ios_base::trunc);
-
     std::ofstream fout_kullbach_leibler_norm("..\\Results\\" + std::string(TYPE_OUT) + "\\kullbach_leibler_norm.txt",
+        std::ios_base::out | std::ios_base::trunc);
+    std::ofstream fout_orig_ro_diag("..\\Results\\" + std::string(TYPE_OUT) + "\\orig_ro_diag.txt",
+        std::ios_base::out | std::ios_base::trunc);
+    std::ofstream fout_rbm_ro_diag("..\\Results\\" + std::string(TYPE_OUT) + "\\rbm_ro_diag.txt",
         std::ios_base::out | std::ios_base::trunc);
 
     for (int b = 0; b < NumberOfBases; b++) {
@@ -333,14 +348,20 @@ void TrainingProcedureSeparatelyForBases(NeuralDensityOperators& RBM, MKL_Comple
 
     auto diff = std::chrono::high_resolution_clock::now() - start;
 
+    MKL_Complex16* RoMatrix = RBM.GetRoMatrix();
     //TransitionMatrix::PrintMatrix(OriginalRoMatrix, N, N, "Ro original");
-    //MKL_Complex16* RoMatrix = RBM.GetRoMatrix();
     //TransitionMatrix::PrintMatrix(RoMatrix, N, N, "Ro RBM");
-    //delete[]RoMatrix;
+    for (int i = 0; i < N; i++) {
+        fout_orig_ro_diag << OriginalRoMatrix[i + i * N].real() << "\n";
+        fout_rbm_ro_diag << RoMatrix[i + i * N].real() << "\n";
+    }
+    delete[]RoMatrix;
 
     fout_kullbach_leibler_norm.close();
     fout_diag_norm.close();
     fout_eig_norm.close();
+    fout_orig_ro_diag.close();
+    fout_rbm_ro_diag.close();
 
     //for (int b = 0; b < NumberOfBases; b++) {
     //    fout_kullbach_leibler_norms[b].close();
