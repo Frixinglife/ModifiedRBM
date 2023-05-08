@@ -7,7 +7,7 @@
 
 int main() {
     int N_v, N_h, N_a;
-    N_v = 4;
+    N_v = 16;
     N_h = 1;
     N_a = 1;
     int NumberOfBases = 4;

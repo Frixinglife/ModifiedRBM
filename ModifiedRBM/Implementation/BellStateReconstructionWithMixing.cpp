@@ -395,10 +395,10 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
 
     auto diff = std::chrono::high_resolution_clock::now() - start;
 
-    TransitionMatrix::PrintMatrix(OriginalRoMatrix, N, N, "Original Ro");
-    MKL_Complex16* RoMatrix = RBM.GetRoMatrix();
-    TransitionMatrix::PrintMatrix(RoMatrix, N, N, "Ro RBM");
-    delete[]RoMatrix;
+    //TransitionMatrix::PrintMatrix(OriginalRoMatrix, N, N, "Original Ro");
+    //MKL_Complex16* RoMatrix = RBM.GetRoMatrix();
+    //TransitionMatrix::PrintMatrix(RoMatrix, N, N, "Ro RBM");
+    //delete[]RoMatrix;
 
     fout_diag_norm.close();
     fout_eig_norm.close();
@@ -413,6 +413,7 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
     //}
 
     double work_time = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(diff).count()) / 1000.0;
+    double fidelity = GetFidelity(N, OriginalRoMatrix, RBM.GetRoMatrix());
 
     std::ofstream fout_config("..\\Results\\"+ std::string(TYPE_OUT) + "\\config.txt", std::ios_base::out | std::ios_base::trunc);
     fout_config << epochs << "\n";
@@ -420,7 +421,7 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
     fout_config << work_time << "\n";
     fout_config << N << "\n";
     fout_config << NumberOfBases << "\n";
-    fout_config << TYPE_OUT << " " << work_time << "\n";
+    fout_config << fidelity << "\n";
     fout_config.close();
 
     std::cout << "\nFinishing the training process\n";
@@ -428,7 +429,7 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
     std::cout << "Data type: " << TYPE_OUT << "\n";
     std::cout << "Time: " << work_time << " s\n";
     std::cout << "P_dep: " << alpha << "\n";
-    std::cout << "Fidelity: " << GetFidelity(N, OriginalRoMatrix, RBM.GetRoMatrix()) << "\n";
+    std::cout << "Fidelity: " << fidelity << "\n";
 
     //delete[]fout_fidelity;
     //delete[]fout_diag_original;
@@ -478,12 +479,13 @@ void BellStateReconstructionWithMixingForAllBasis(NeuralDensityOperators& RBM, M
 
     auto diff = std::chrono::high_resolution_clock::now() - start;
 
-    TransitionMatrix::PrintMatrix(OriginalRoMatrix, N, N, "Original Ro");
-    MKL_Complex16* RoMatrix = RBM.GetRoMatrix();
-    TransitionMatrix::PrintMatrix(RoMatrix, N, N, "Ro RBM");
-    delete[]RoMatrix;
+    //TransitionMatrix::PrintMatrix(OriginalRoMatrix, N, N, "Original Ro");
+    //MKL_Complex16* RoMatrix = RBM.GetRoMatrix();
+    //TransitionMatrix::PrintMatrix(RoMatrix, N, N, "Ro RBM");
+    //delete[]RoMatrix;
 
     double work_time = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(diff).count()) / 1000.0;
+    double fidelity = GetFidelity(N, OriginalRoMatrix, RBM.GetRoMatrix());
 
     fout_diag_norm.close();
     fout_eig_norm.close();
@@ -495,14 +497,14 @@ void BellStateReconstructionWithMixingForAllBasis(NeuralDensityOperators& RBM, M
     fout_config << work_time << "\n";
     fout_config << N << "\n";
     fout_config << NumberOfBases << "\n";
-    fout_config << TYPE_OUT << " " << work_time << "\n";
+    fout_config << fidelity << "\n";
     fout_config.close();
 
     std::cout << "\nFinishing the training process\n";
     std::cout << "\nMatrix size: " << N << " x " << N << "\n";
     std::cout << "Data type: " << TYPE_OUT << "\n";
     std::cout << "Time: " << work_time << " s\n";
-    std::cout << "Fidelity: " << GetFidelity(N, OriginalRoMatrix, RBM.GetRoMatrix()) << "\n";
+    std::cout << "Fidelity: " << fidelity << "\n";
 
     delete[]UbMatrices;
 }
