@@ -151,6 +151,7 @@
     <ClInclude Include="Headers\CRSMatrix.h" />
     <ClInclude Include="Headers\DataType.h" />
     <ClInclude Include="Headers\MatrixAndVectorOperations.h" />
+    <ClInclude Include="Headers\MetricsAndHelperFunctions.h" />
     <ClInclude Include="Headers\ModifiedRBM.h" />
     <ClInclude Include="Headers\NeuralDensityOperators.h" />
     <ClInclude Include="Headers\RandomMatricesForRBM.h" />
@@ -161,6 +162,7 @@
     <ClCompile Include="Implementation\BellStateReconstructionWithMixing.cpp" />
     <ClCompile Include="Implementation\CRSMatrix.cpp" />
     <ClCompile Include="Implementation\MatrixAndVectorOperations.cpp" />
+    <ClCompile Include="Implementation\MetricsAndHelperFunctions.cpp" />
     <ClCompile Include="Implementation\ModifiedRBM.cpp" />
     <ClCompile Include="Implementation\NeuralDensityOperators.cpp" />
     <ClCompile Include="Implementation\RandomMatricesForRBM.cpp" />

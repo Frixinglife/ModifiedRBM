@@ -9,4 +9,4 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
 void BellStateReconstructionWithMixingForAllBasis(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMatrix,
 	double alpha, int NumberOfBases, int epochs, acc_number lr, int freq);
 
-#endif _BELL_STATE_RECONSTRUCTION_WITH_MIXING_H_
+#endif //_BELL_STATE_RECONSTRUCTION_WITH_MIXING_H_
