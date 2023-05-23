@@ -282,6 +282,10 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
     //delete[]fout_kullbach_leibler_norms;
     //delete[]fout_diag_norms;
     //delete[]fout_eig_norms;
+    for (int i = 0; i < NumberOfBases; i++) {
+        delete OriginalRoMatrices[i];
+    }
+    delete[]OriginalRoMatrices;
     delete[]UbMatrices;
 }
 
@@ -363,5 +367,9 @@ void BellStateReconstructionWithMixingForAllBasis(NeuralDensityOperators& RBM, M
     std::cout << "Time: " << work_time << " s\n";
     std::cout << "Fidelity: " << fidelity << "\n";
 
+    for (int i = 0; i < NumberOfBases; i++) {
+        delete OriginalRoMatrices[i];
+    }
+    delete[]OriginalRoMatrices;
     delete[]UbMatrices;
 }

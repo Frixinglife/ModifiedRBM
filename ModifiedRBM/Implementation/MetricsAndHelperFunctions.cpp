@@ -73,6 +73,7 @@ double KullbachLeiblerNorm(int N, MKL_Complex16** OriginalRoMatrices, MKL_Comple
                 result += OrigRo_elem * std::log(OrigRo_elem / RoRBM_elem);
             }
         }
+        delete[] NewRoMatrix;
     }
     return result;
 }

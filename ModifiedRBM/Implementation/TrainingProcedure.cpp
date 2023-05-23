@@ -109,6 +109,10 @@ void TrainingProcedure(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMat
 
     //delete[]fout_diag_norms;
     //delete[]fout_eig_norms;
+    for (int i = 0; i < NumberOfBases; i++) {
+        delete OriginalRoMatrices[i];
+    }
+    delete[]OriginalRoMatrices;
     delete[]UbMatrices;
 }
 
@@ -223,5 +227,9 @@ void TrainingProcedureSeparatelyForBases(NeuralDensityOperators& RBM, MKL_Comple
     //delete[]fout_kullbach_leibler_norms;
     //delete[]fout_diag_norms;
     //delete[]fout_eig_norms;
+    for (int i = 0; i < NumberOfBases; i++) {
+        delete OriginalRoMatrices[i];
+    }
+    delete[]OriginalRoMatrices;
     delete[]UbMatrices;
 }

@@ -8,6 +8,8 @@ void TrainingExperiment(int N_v, int N_h, int N_a, int NumberOfBases, int Number
 	MKL_Complex16* OriginalRoMatrix = SupportRBM.GetRoMatrix(nullptr, false);
 
 	TrainingProcedure(RBM, OriginalRoMatrix, NumberOfBases, NumberOfUnitary, epochs, lr, freq);
+
+	delete[] OriginalRoMatrix;
 }
 
 void TrainingExperimentSeparatelyForBases(int N_v, int N_h, int N_a, int NumberOfBases, int NumberOfUnitary, int epochs, acc_number lr, int freq) {
@@ -17,4 +19,6 @@ void TrainingExperimentSeparatelyForBases(int N_v, int N_h, int N_a, int NumberO
 	MKL_Complex16* OriginalRoMatrix = SupportRBM.GetRoMatrix(nullptr, false);
 
 	TrainingProcedureSeparatelyForBases(RBM, OriginalRoMatrix, NumberOfBases, NumberOfUnitary, epochs, lr, freq);
+
+	delete[] OriginalRoMatrix;
 }
