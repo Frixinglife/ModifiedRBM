@@ -147,7 +147,7 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
 
     int N = RBM.ModifiedRBM.N_v;
 
-    CRSMatrix* UbMatrices = GetUbRandomMatrices(N, NumberOfBases);
+    CRSMatrix* UbMatrices = new CRSMatrix[NumberOfBases];
     MKL_Complex16** OriginalRoMatrices = new MKL_Complex16* [NumberOfBases];
 
     //std::ofstream* fout_fidelity = new std::ofstream[NumberOfBases];
@@ -168,7 +168,10 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
     std::ofstream fout_rbm_ro_diag("..\\Results\\" + std::string(TYPE_OUT) + "\\rbm_ro_diag.txt",
         std::ios_base::out | std::ios_base::trunc);
 
+    int NumberOfUnitary = 1;
     for (int b = 0; b < NumberOfBases; b++) {
+        TransitionMatrix TM(30);
+        UbMatrices[b] = TM.GetCRSTransitionMatrix(N, NumberOfUnitary, b);
         OriginalRoMatrices[b] = TransitionMatrix::GetNewRoMatrix(OriginalRoMatrix, UbMatrices[b], N);
 
         //fout_fidelity[b] = std::ofstream("..\\Results\\" + std::string(TYPE_OUT) + "\\fidelity_" + 
@@ -297,7 +300,7 @@ void BellStateReconstructionWithMixingForAllBasis(NeuralDensityOperators& RBM, M
 
     int N = RBM.ModifiedRBM.N_v;
 
-    CRSMatrix* UbMatrices = GetUbRandomMatrices(N, NumberOfBases);
+    CRSMatrix* UbMatrices = new CRSMatrix[NumberOfBases];
 
     std::ofstream fout_kullbach_leibler_norm("..\\Results\\" + std::string(TYPE_OUT) + "\\kullbach_leibler_norm.txt",
         std::ios_base::out | std::ios_base::trunc);
@@ -312,7 +315,10 @@ void BellStateReconstructionWithMixingForAllBasis(NeuralDensityOperators& RBM, M
 
     MKL_Complex16** OriginalRoMatrices = new MKL_Complex16 * [NumberOfBases];
 
+    int NumberOfUnitary = 1;
     for (int b = 0; b < NumberOfBases; b++) {
+        TransitionMatrix TM(30);
+        UbMatrices[b] = TM.GetCRSTransitionMatrix(N, NumberOfUnitary, b);
         OriginalRoMatrices[b] = TransitionMatrix::GetNewRoMatrix(OriginalRoMatrix, UbMatrices[b], N);
     }
 

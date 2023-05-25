@@ -14,8 +14,7 @@ void TrainingProcedure(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMat
 
     int N = RBM.ModifiedRBM.N_v;
 
-    CRSMatrix* UbMatrices = GetUbRandomMatrices(N, NumberOfBases);
-
+    CRSMatrix* UbMatrices = new CRSMatrix[NumberOfBases];
     MKL_Complex16** OriginalRoMatrices = new MKL_Complex16*[NumberOfBases];
 
     std::ofstream fout_diag_norm("..\\Results\\" + std::string(TYPE_OUT) + "\\diag_norm.txt",
@@ -34,6 +33,7 @@ void TrainingProcedure(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMat
 
     for (int b = 0; b < NumberOfBases; b++) {
         TransitionMatrix TM(30);
+        UbMatrices[b] = TM.GetCRSTransitionMatrix(N, NumberOfUnitary, b);
         OriginalRoMatrices[b] = TransitionMatrix::GetNewRoMatrix(OriginalRoMatrix, UbMatrices[b], N);
 
         //fout_diag_norms[b] = std::ofstream("..\\Results\\" + std::string(TYPE_OUT) + "\\diag_norm_" +
@@ -124,7 +124,7 @@ void TrainingProcedureSeparatelyForBases(NeuralDensityOperators& RBM, MKL_Comple
 
     int N = RBM.ModifiedRBM.N_v;
 
-    CRSMatrix* UbMatrices = GetUbRandomMatrices(N, NumberOfBases);
+    CRSMatrix* UbMatrices = new CRSMatrix[NumberOfBases];
     MKL_Complex16** OriginalRoMatrices = new MKL_Complex16*[NumberOfBases];
 
     //std::ofstream* fout_kullbach_leibler_norms = new std::ofstream[NumberOfBases];
@@ -144,6 +144,7 @@ void TrainingProcedureSeparatelyForBases(NeuralDensityOperators& RBM, MKL_Comple
 
     for (int b = 0; b < NumberOfBases; b++) {
         TransitionMatrix TM(30);
+        UbMatrices[b] = TM.GetCRSTransitionMatrix(N, NumberOfUnitary, b);
         OriginalRoMatrices[b] = TransitionMatrix::GetNewRoMatrix(OriginalRoMatrix, UbMatrices[b], N);
 
        // fout_kullbach_leibler_norms[b] = std::ofstream("..\\Results\\" + std::string(TYPE_OUT) + "\\kullbach_leibler_norm_" + 
