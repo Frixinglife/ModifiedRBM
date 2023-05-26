@@ -1,4 +1,4 @@
-#include "TransitionMatrix.h"
+ï»¿#include "TransitionMatrix.h"
 #include <iostream>
 #include <iomanip>
 #include <cmath>
@@ -221,7 +221,7 @@ CRSMatrix TransitionMatrix::GetCRSTransitionMatrix(int N, int NumberOfUnitary, i
 MKL_Complex16* TransitionMatrix::GetNewRoMatrix(MKL_Complex16* Ro, CRSMatrix& Ub, int N) {
 	MKL_Complex16* Intermed = CRSMatrix::MultCRSDense(Ub, Ro, N);
 	
-	// NewRo = Intermed * U^† -> NewRo^T = (U^†)^T * (Intermed)^T = U^* * (Intermed)^T
+	// NewRo = Intermed * U^â€  -> NewRo^T = (U^â€ )^T * (Intermed)^T = U^* * (Intermed)^T
 	CRSMatrix Ub_conj = Ub;
 	for (int i = 0; i < Ub.nz; i++) {
 		MKL_Complex16 Val = Ub_conj.val[i];

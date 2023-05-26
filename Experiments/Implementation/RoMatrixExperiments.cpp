@@ -27,7 +27,7 @@ void GetRoMatrixAndEig(int N_v, int N_h, int N_a, bool plot, std::string type) {
 }
 
 void GetWorkTime(int N_v, int N_h, int N_a, bool plot, std::string type) {
-    std::ofstream fout("..\\Results\\times.txt", std::ios_base::app);
+    std::ofstream fout("times.txt", std::ios_base::app);
 
     NeuralDensityOperators DensityOperators(N_v, N_h, N_a, 42, type);
 
