@@ -21,7 +21,7 @@ void TrainingProcedure(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMat
         std::ios_base::out | std::ios_base::trunc);
     std::ofstream fout_eig_norm(std::string(TYPE_OUT) + "_eig_norm.txt", 
         std::ios_base::out | std::ios_base::trunc);
-    std::ofstream fout_kullbach_leibler_norm(std::string(TYPE_OUT) + "_kullbach_leibler_norm.txt",
+    std::ofstream fout_kullback_leibler_norm(std::string(TYPE_OUT) + "_kullback_leibler_norm.txt",
         std::ios_base::out | std::ios_base::trunc);
     std::ofstream fout_orig_ro_diag(std::string(TYPE_OUT) + "_orig_ro_diag.txt",
         std::ios_base::out | std::ios_base::trunc);
@@ -51,7 +51,7 @@ void TrainingProcedure(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMat
         std::cout << l << " / " << epochs << " \n";
 
         if (l % freq == 0 || l == 1) {
-            fout_kullbach_leibler_norm << KullbackLeiblerNorm(N, OriginalRoMatrices, RoMatrix, NumberOfBases, UbMatrices) << "\n";
+            fout_kullback_leibler_norm << KullbackLeiblerNorm(N, OriginalRoMatrices, RoMatrix, NumberOfBases, UbMatrices) << "\n";
             fout_diag_norm << NormMatrixDiag(N, OriginalRoMatrix, RoMatrix) << "\n";
             fout_eig_norm << MaxEigDiffMatrix(N, OriginalRoMatrix, RoMatrix) << "\n";
 
@@ -78,7 +78,7 @@ void TrainingProcedure(NeuralDensityOperators& RBM, MKL_Complex16* OriginalRoMat
     }
     delete[]RoMatrix;
 
-    fout_kullbach_leibler_norm.close();
+    fout_kullback_leibler_norm.close();
     fout_diag_norm.close();
     fout_eig_norm.close();
     fout_orig_ro_diag.close();
@@ -127,7 +127,7 @@ void TrainingProcedureSeparatelyForBases(NeuralDensityOperators& RBM, MKL_Comple
     CRSMatrix* UbMatrices = new CRSMatrix[NumberOfBases];
     MKL_Complex16** OriginalRoMatrices = new MKL_Complex16*[NumberOfBases];
 
-    //std::ofstream* fout_kullbach_leibler_norms = new std::ofstream[NumberOfBases];
+    //std::ofstream* fout_kullback_leibler_norms = new std::ofstream[NumberOfBases];
     //std::ofstream* fout_diag_norms = new std::ofstream[NumberOfBases];
     //std::ofstream* fout_eig_norms = new std::ofstream[NumberOfBases];
 
@@ -135,7 +135,7 @@ void TrainingProcedureSeparatelyForBases(NeuralDensityOperators& RBM, MKL_Comple
         std::ios_base::out | std::ios_base::trunc);
     std::ofstream fout_eig_norm(std::string(TYPE_OUT) + "_eig_norm.txt", 
         std::ios_base::out | std::ios_base::trunc);
-    std::ofstream fout_kullbach_leibler_norm(std::string(TYPE_OUT) + "_kullbach_leibler_norm.txt",
+    std::ofstream fout_kullback_leibler_norm(std::string(TYPE_OUT) + "_kullback_leibler_norm.txt",
         std::ios_base::out | std::ios_base::trunc);
     std::ofstream fout_orig_ro_diag(std::string(TYPE_OUT) + "_orig_ro_diag.txt",
         std::ios_base::out | std::ios_base::trunc);
@@ -147,7 +147,7 @@ void TrainingProcedureSeparatelyForBases(NeuralDensityOperators& RBM, MKL_Comple
         UbMatrices[b] = TM.GetCRSTransitionMatrix(N, NumberOfUnitary, b);
         OriginalRoMatrices[b] = TransitionMatrix::GetNewRoMatrix(OriginalRoMatrix, UbMatrices[b], N);
 
-       // fout_kullbach_leibler_norms[b] = std::ofstream(std::string(TYPE_OUT) + "_kullbach_leibler_norm_" + 
+       // fout_kullback_leibler_norms[b] = std::ofstream(std::string(TYPE_OUT) + "_kullback_leibler_norm_" + 
        //     std::to_string(b) + ".txt", std::ios_base::out | std::ios_base::trunc);
 
        //fout_diag_norms[b] = std::ofstream(std::string(TYPE_OUT) + "_diag_norm_" + 
@@ -167,13 +167,13 @@ void TrainingProcedureSeparatelyForBases(NeuralDensityOperators& RBM, MKL_Comple
 
             if (l % freq == 0 || l == 1) {
                 //MKL_Complex16* NewRoMatrix = TransitionMatrix::GetNewRoMatrix(RoMatrix, UbMatrices[b], N);
-                //fout_kullbach_leibler_norms[b] << KullbachLeiblerNorm(N, OriginalRoMatrices[b], NewRoMatrix) << "\n";
+                //fout_kullback_leibler_norms[b] << kullbackLeiblerNorm(N, OriginalRoMatrices[b], NewRoMatrix) << "\n";
                 //fout_diag_norms[b] << NormMatrixDiag(N, OriginalRoMatrices[b], NewRoMatrix) << "\n";
                 //fout_eig_norms[b] << MaxEigDiffMarix(N, OriginalRoMatrices[b], NewRoMatrix) << "\n";
                 //delete[] NewRoMatrix;
 
                 if (b == NumberOfBases - 1) {
-                    fout_kullbach_leibler_norm << KullbackLeiblerNorm(N, OriginalRoMatrices, RoMatrix, NumberOfBases, UbMatrices) << "\n";
+                    fout_kullback_leibler_norm << KullbackLeiblerNorm(N, OriginalRoMatrices, RoMatrix, NumberOfBases, UbMatrices) << "\n";
                     fout_diag_norm << NormMatrixDiag(N, OriginalRoMatrix, RoMatrix) << "\n";
                     fout_eig_norm << MaxEigDiffMatrix(N, OriginalRoMatrix, RoMatrix) << "\n";
                 }
@@ -195,14 +195,14 @@ void TrainingProcedureSeparatelyForBases(NeuralDensityOperators& RBM, MKL_Comple
     }
     delete[]RoMatrix;
 
-    fout_kullbach_leibler_norm.close();
+    fout_kullback_leibler_norm.close();
     fout_diag_norm.close();
     fout_eig_norm.close();
     fout_orig_ro_diag.close();
     fout_rbm_ro_diag.close();
 
     //for (int b = 0; b < NumberOfBases; b++) {
-    //    fout_kullbach_leibler_norms[b].close();
+    //    fout_kullback_leibler_norms[b].close();
     //    fout_diag_norms[b].close();
     //    fout_eig_norms[b].close();
     //}
@@ -225,7 +225,7 @@ void TrainingProcedureSeparatelyForBases(NeuralDensityOperators& RBM, MKL_Comple
     std::cout << "Time: " << work_time << " s\n";
     std::cout << "Fidelity: " << fidelity << "\n";
 
-    //delete[]fout_kullbach_leibler_norms;
+    //delete[]fout_kullback_leibler_norms;
     //delete[]fout_diag_norms;
     //delete[]fout_eig_norms;
     for (int i = 0; i < NumberOfBases; i++) {
