@@ -221,7 +221,7 @@ void BellStateReconstructionWithMixing(NeuralDensityOperators& RBM, MKL_Complex1
                 //}
 
                 if (b == NumberOfBases - 1) {
-                    fout_kullbach_leibler_norm << KullbachLeiblerNorm(N, OriginalRoMatrices, RoMatrix, NumberOfBases, UbMatrices) << "\n";
+                    fout_kullbach_leibler_norm << KullbackLeiblerNorm(N, OriginalRoMatrices, RoMatrix, NumberOfBases, UbMatrices) << "\n";
                     fout_diag_norm << NormMatrixDiag(N, OriginalRoMatrix, RoMatrix) << "\n";
                     fout_eig_norm << MaxEigDiffMatrix(N, OriginalRoMatrix, RoMatrix) << "\n";
                 }
@@ -329,7 +329,7 @@ void BellStateReconstructionWithMixingForAllBasis(NeuralDensityOperators& RBM, M
 
         std::cout << l << " / " << epochs << " \n";
         if (l % freq == 0 || l == 1) {
-            fout_kullbach_leibler_norm << KullbachLeiblerNorm(N, OriginalRoMatrices, RoMatrix, NumberOfBases, UbMatrices) << "\n";
+            fout_kullbach_leibler_norm << KullbackLeiblerNorm(N, OriginalRoMatrices, RoMatrix, NumberOfBases, UbMatrices) << "\n";
             fout_diag_norm << NormMatrixDiag(N, OriginalRoMatrix, RoMatrix) << "\n";
             fout_eig_norm << MaxEigDiffMatrix(N, OriginalRoMatrix, RoMatrix) << "\n";
         }

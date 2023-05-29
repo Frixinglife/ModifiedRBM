@@ -19,7 +19,7 @@ with open(".\\float\\kullbach_leibler_norm.txt") as f:
     kullbach_leibler_norm_f = [float(line) for line in f]
 
 epochs = [i for i in range(1, int(num_epochs_f) + 1) if i == 1 or i % int(freq_f) == 0]
-title = 'График зависимости расстояния Кульбаха-Лейблера от числа эпох \n' +\
+title = 'График зависимости расстояния Кульбака-Лейблера от числа эпох \n' +\
 		f'для матрицы плотности размера {N_f} x {N_f} и {NumberOfBases_f} базисов'.replace('\n', '')
 
 plt.title(title, fontweight = 'bold')

@@ -62,7 +62,7 @@ double MaxEigDiffMatrix(int N, MKL_Complex16* OriginalRoMatrix, MKL_Complex16* R
     return MaxLambda;
 }
 
-double KullbachLeiblerNorm(int N, MKL_Complex16** OriginalRoMatrices, MKL_Complex16* RoMatrixRBM, int NumberOfBases, CRSMatrix* UbMatrices) {
+double KullbackLeiblerNorm(int N, MKL_Complex16** OriginalRoMatrices, MKL_Complex16* RoMatrixRBM, int NumberOfBases, CRSMatrix* UbMatrices) {
     double result = 0.0;
     for (int b = 0; b < NumberOfBases; b++) {
         MKL_Complex16* NewRoMatrix = TransitionMatrix::GetNewRoMatrix(RoMatrixRBM, UbMatrices[b], N);
@@ -144,7 +144,7 @@ void GetUnitaryMatrix(int seed, int N, MKL_Complex16* A) {
     delete[] A_double;
 }
 
-double KullbachLeiblerNorm(int N, MKL_Complex16* OriginalRoMatrix, MKL_Complex16* NewRoMatrixRBM) {
+double KullbackLeiblerNorm(int N, MKL_Complex16* OriginalRoMatrix, MKL_Complex16* NewRoMatrixRBM) {
     double result = 0.0;
     for (int i = 0; i < N; i++) {
         double OrigRo_elem = OriginalRoMatrix[i + i * N].real();
